@@ -547,10 +547,10 @@ environment
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree7f0b0f20c3aca15005c55833e3090552368a9c58targetblank7f0b0f2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/7f0b0f20c3aca15005c55833e3090552368a9c58" target="_blank">7f0b0f2</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreeecb7e16b68baa11cf70266ebdc34520869026638targetblankecb7e16a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/ecb7e16b68baa11cf70266ebdc34520869026638" target="_blank">ecb7e16</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree7f0b0f20c3aca15005c55833e3090552368a9c58targetblank7f0b0f2a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreeecb7e16b68baa11cf70266ebdc34520869026638targetblankecb7e16a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -596,6 +596,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/ecb7e16b68baa11cf70266ebdc34520869026638/analysis/VEB_Boost_Derivation.Rmd" target="_blank">ecb7e16</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-13
+</td>
+<td>
+Add a bit about what a base learner needs to do
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/45d40fb02e66d99aa9861e6ee56348162bab9f9c/docs/VEB_Boost_Derivation.html" target="_blank">45d40fb</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -771,6 +805,7 @@ Updating with some math
 \Big(\mu_1 \circ (\mu_2 + \mu_3)\Big) + (\mu_4 \circ \mu_5)
 \]</span> (where <span class="math inline">\(\mu_j\)</span> are our base learners).</p>
 <p>By constructing our learner this way, we can construct more complex learners from our base learners than traditional boosting can.</p>
+<p>All that is required of a base learner is being able to solve the general weighted regression problem using VEB, and be able to return its first 2 moments, as well as KL divergence.</p>
 </div>
 <div id="miscellaneous-preliminaries" class="section level1">
 <h1>Miscellaneous Preliminaries</h1>
@@ -780,7 +815,7 @@ Updating with some math
 <p>For the weighted version of a regression, we have: <span class="math display">\[
 \begin{aligned}
 Y = \mu + E \\
-\mu \sim g(\cdot) \\
+\mu \sim g(\cdot) \in \mathcal{G} \\
 E \sim \mathcal{N}(0, diag(\vec{\sigma^2})) \\
 \text{Where } \quad \vec{\sigma^2} = [\sigma_1^2, \dots, \sigma_n^2]^T
 \end{aligned}

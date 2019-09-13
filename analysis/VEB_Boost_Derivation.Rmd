@@ -107,12 +107,12 @@ To solve the VEB problem, $\arg \max_{q \in \mathcal{Q}, g \in \mathcal{G}, \the
 Under this model, we can write the ELBO as
 $$
 F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
-\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
 $$
 
 In terms of a specific $\mu_j$ in position $s = d_1 \cdots d_K$ (and the corresponding $q_j$ and $g_j$), we can write the ELBO as
 $$
-\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
 $$
@@ -212,3 +212,25 @@ $$
 Thus, the claim has been shown.
 
 As a consequence, the claim shows that we can update each $(q_j, g_j)$ by finding the VEB solution to the weighted regression problem with response $\tilde{Y}$ and variances $\vec{\frac{\sigma^2}{Q^2}}$. All we need are the first 2 moments from all other base learners, the tree structure in order to reconstruct how the other learners are related to $\mu_j$, and a function to solve the desired VEB problem corresponding to the prior class for $\mu_j$.
+
+
+## Calculating the ELBO
+After all base learners have been updated, calculating the ELBO is straightforward. As before, we can write the ELBO as
+$$
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+$$
+
+We can simiplify this as
+$$
+-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]  + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg] - \sum_{l=1}^L D_{KL}\Big(Q_l \| G_l\Big)
+$$
+
+If we store the KL divergergence for each of our terminal nodes, the first 2 moments of the fitted models at each terminal node, and have a way of calculating the first 2 moments for the entire tree, then calculating the ELBO is easy.
+
+
+## Updating $\sigma^2$
+After our coordinate ascent steps for $(q_l, g_l)$, we can take a coordinate ascent step fof $\sigma^2$. We simply maximize the ELBO w.r.t. $\sigma^2$, which from the above expression (after taking the partial derivative w.r.t. $\sigma^2$ and setting to 0) gives us
+$$
+\widehat{\sigma^2} = \frac{1}{n}\Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]
+$$

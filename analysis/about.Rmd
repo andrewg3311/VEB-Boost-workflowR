@@ -7,4 +7,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+This project aims to detail the idea of VEB-Boost. Here, we aim to combine "base learners" together to create a full learner.

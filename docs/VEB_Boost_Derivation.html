@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Andrew Goldstein" />
+
+<meta name="date" content="2019-09-10" />
+
+<title>VEB Boost Derivation</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">VEB-Boost</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">VEB Boost Derivation</h1>
+<h4 class="author">Andrew Goldstein</h4>
+<h4 class="date">September 10, 2019</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-09-12
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>VEB-Boost/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div class="panel-group" id="workflowr-checks">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Environment:</strong> objects present </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongobjectspresent" class="panel-collapse collapse">
+<div class="panel-body">
+
+<p>
+The global environment had objects present when the code in the R Markdown file was run. These objects can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment. Use <code>wflow_publish</code> or <code>wflow_build</code> to ensure that the code is always run in an empty environment.
+</p>
+<p>
+The following objects were defined in the global environment when these results were created:
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+environment
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+env
+</td>
+<td style="text-align:left;">
+environment
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190909code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190909)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190909code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190909)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreebe67c0712616f72005bf0f451145adb437da9692targetblankbe67c07a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/be67c0712616f72005bf0f451145adb437da9692" target="_blank">be67c07</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreebe67c0712616f72005bf0f451145adb437da9692targetblankbe67c07a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Untracked files:
+    Untracked:  code/Objects/
+    Untracked:  docs/figures/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/be67c0712616f72005bf0f451145adb437da9692/analysis/VEB_Boost_Derivation.Rmd" target="_blank">be67c07</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-13
+</td>
+<td>
+Updating with some math
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The general idea of boosting is to combine many weak learners together to get a good learner. Typically, weak learners are combined together by fitting newer learners on the data, where we place higher weight on the data points that previous learners failed to fit accurately. We sequentially add these models together to create an additive model.</p>
+<p>The idea behind VEB-Boosting (Variational Empirical Bayes-Boosting) is to combine base learners together in more complex ways. In particular, there are two general ways to combine learners: addition and (Schur) multiplication. Thus, we can define a learner recursively as:</p>
+<ol style="list-style-type: decimal">
+<li><p>A base learner;</p></li>
+<li><p>A sum of two learners; or</p></li>
+<li><p>A Schur product of two learners.</p></li>
+</ol>
+<p>As a result, we can represent any learner as a binary tree, where each internal node is an operation combing the learners formed the child branches (<span class="math inline">\(+\)</span> or <span class="math inline">\(\circ\)</span>), and the terminal nodes represent base learners.</p>
+<p>For example, consider the binary tree below: <img src="../docs/figures/tree_example.png" alt="Tree Example" /></p>
+<p>This tree represents the learner formed by the following: <span class="math display">\[
+\Big(\mu_1 \circ (\mu_2 + \mu_3)\Big) + (\mu_4 \circ \mu_5)
+\]</span> (where <span class="math inline">\(\mu_j\)</span> are our base learners).</p>
+<p>By constructing our learner this way, we can construct more complex learners from our base learners than traditional boosting can.</p>
+</div>
+<div id="miscellaneous-preliminaries" class="section level1">
+<h1>Miscellaneous Preliminaries</h1>
+<p>We will see later that performing variational inference in the setting with a normally distributed response and unequal variances plays a key role.</p>
+<div id="general-weighted-regression" class="section level2">
+<h2>General Weighted Regression</h2>
+<p>For the weighted version of a regression, we have: <span class="math display">\[
+\begin{aligned}
+Y = \mu + E \\
+\mu \sim g(\cdot) \\
+E \sim \mathcal{N}(0, diag(\vec{\sigma^2})) \\
+\text{Where } \quad \vec{\sigma^2} = [\sigma_1^2, \dots, \sigma_n^2]^T
+\end{aligned}
+\]</span></p>
+<p>In this case, the ELBO can be written as <span class="math display">\[
+F(q, g, \vec{\sigma^2}; y) = -\frac{n}{2}\log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) - \frac{1}{2}\mathbb{E}_q\Bigg[\Bigg\|\Big(y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_q \Bigg[\log \frac{g(\mu)}{q(\mu)}\Bigg]
+\]</span></p>
+<p>Then the form of the VB update is: <span class="math display">\[
+\begin{aligned}
+q(\mu = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(Y|\mu = \mathbf{c}\Big)\Bigg\} = \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) + \frac{1}{\sigma_i^2}\Big(Y_i - \mathbf{c}_i\Big)^2\Bigg\} \propto \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(\mathbf{c}_i^2 - 2\mathbf{c}_iY_i\Big)\Bigg\}
+\end{aligned}
+\]</span></p>
+</div>
+<div id="formal-model" class="section level2">
+<h2>Formal Model</h2>
+<p>Let <span class="math inline">\(T(\mu_1, \dots, \mu_K)\)</span> be the learner implied by a given tree structure <span class="math inline">\(T\)</span> and base learners <span class="math inline">\(\mu_j\)</span>. Then the formal model for VEB-Boosting for the given tree and base learners is given by: <span class="math display">\[
+\begin{aligned}
+Y = T\Big(\mu_1, \dots, \mu_L\Big) + E \\
+\mu_j \stackrel{\perp}{\sim} g_j(\cdot) \in \mathcal{G}_j, \quad j = 1, \dots, L \\
+E \sim \mathcal{N}(0, \sigma^2 I_n) \\
+\end{aligned}
+\]</span></p>
+<p>To fit this model, we use variational inference with a mean-field approximation <span class="math inline">\(\mathcal{Q}\)</span>: <span class="math display">\[
+q\Big(\mu_1, \dots, \mu_L\Big) = \prod_{j=1}^L q_j\Big(\mu_j\Big)
+\]</span></p>
+</div>
+<div id="describing-a-base-learners-role-in-the-tree" class="section level2">
+<h2>Describing a Base Learner’s Role in the Tree</h2>
+<p>For any given base learner <span class="math inline">\(\mu_j\)</span> in the tree <span class="math inline">\(T(\mu_1, \dots, \mu_K)\)</span>, we can define the tree as a sequence of operations involving our base learner <span class="math inline">\(\mu_j\)</span> and learners <span class="math inline">\(\nu_s\)</span>.</p>
+<p>In order to achieve this, let the position of any node in the tree be given by a string of L’s and R’s, where “L” signifies going left in the tree and “R” signifies going right, and the string “<span class="math inline">\(\cdot\)</span>” corresponds to the root node. At a given string position <span class="math inline">\(s\)</span> for an internal node, let the operator at that position be given by <span class="math inline">\(\oplus_s\)</span>, and let the learner that’s described by the subtree whose root is the given internal node be given by <span class="math inline">\(\nu_s\)</span>. And say a string <span class="math inline">\(s\)</span> is given by the sequence <span class="math inline">\(s = d_1 \cdots d_K\)</span>, where each <span class="math inline">\(d_k \in \{L, R\}\)</span>. Then define <span class="math inline">\(\bar{d_k}\)</span> as switching the direction.</p>
+<p>For example, the position of <span class="math inline">\(\mu_2\)</span> in the example tree above is <span class="math inline">\(s = LRL\)</span>. Then we can describe the tree as: <span class="math display">\[
+\nu_R + \Big[\nu_{LL} \circ \Big(\mu_2 + \nu_{LRR}\Big)\Big]
+\]</span></p>
+<p>In general, for a base learner at a terminal node at position <span class="math inline">\(s = d_1 \cdots d_K\)</span>, we can describe the tree as: <span class="math display">\[
+\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg)
+\]</span></p>
+<p>In words, we halve the tree at each step, combining the half that doesn’t include <span class="math inline">\(\mu_j\)</span> into a single learner and repeat until we get to <span class="math inline">\(\mu_j\)</span>.</p>
+</div>
+</div>
+<div id="derivation-of-veb-coordinate-ascent-updates" class="section level1">
+<h1>Derivation of VEB Coordinate Ascent Updates</h1>
+<p>To solve the VEB problem, <span class="math inline">\(\arg \max_{q \in \mathcal{Q}, g \in \mathcal{G}, \theta \in \Theta} F(q, g, \sigma^2;y)\)</span>, we can perform coordinate ascent updates, where we update each <span class="math inline">\((q_l, g_l)\)</span> individually, and then update <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>Under this model, we can write the ELBO as <span class="math display">\[
+F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+\]</span></p>
+<p>In terms of a specific <span class="math inline">\(\mu_j\)</span> in position <span class="math inline">\(s = d_1 \cdots d_K\)</span> (and the corresponding <span class="math inline">\(q_j\)</span> and <span class="math inline">\(g_j\)</span>), we can write the ELBO as <span class="math display">\[
+\mathbb{E}_{q_l} \Bigg[-\frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-l}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\]</span></p>
+<p>For a given operator <span class="math inline">\(\oplus\)</span>, and implied distribution over <span class="math inline">\(\nu_2\)</span> (with first moment <span class="math inline">\(\bar{\nu_2}\)</span> and second moment <span class="math inline">\(\bar{\nu_2^2}\)</span>), define <span class="math display">\[
+\nu_1 \bar{\oplus} \nu_2 :=
+\begin{cases}
+\nu_1 - \bar{\nu_2}, \quad \text{if } \oplus = + \\
+\nu_1 \circ \frac{\bar{\nu_2}}{\bar{\nu_2^2}}, \quad \text{if } \oplus = \circ
+\end{cases}
+\]</span></p>
+<p>Next, define <span class="math display">\[
+\tilde{Y} := \Bigg(\cdots \Big( (Y \bar{\oplus}_\cdot \nu_{\bar{d_1}}) \bar{\oplus}_{d_1} \nu_{d_1 \bar{d_2}}\Big) \bar{\oplus}_{d_1d_2} \cdots \bar{\oplus}_{d_1 \cdots d_{K-1}} \nu_{d_1 \cdots d_{k-1}\bar{d_K}}\Bigg)
+\]</span> and define <span class="math display">\[
+\vec{Q^2} := \circ_s \bar{\nu_{sd}^2}
+\]</span> where <span class="math inline">\(s\)</span> runs over all partials string of <span class="math inline">\(d_1 \cdots d_{K-1}\)</span> such that <span class="math inline">\(\oplus_s = \circ\)</span> and <span class="math inline">\(d\)</span> follows <span class="math inline">\(s\)</span> in <span class="math inline">\(d_1 \cdots d_{K}\)</span>.</p>
+<p>With these definitions in place, we make the following claim: <span class="math display">\[
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\]</span></p>
+<p>We prove this claim by induction over <span class="math inline">\(K\)</span>, the length of the string defining the position of <span class="math inline">\(\mu_j\)</span> in the tree.</p>
+<p><strong>Base case: <span class="math inline">\(K = 1\)</span></strong> In this case, the ELBO is <span class="math display">\[
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \oplus_\cdot \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li><p><span class="math inline">\(\oplus_\cdot = +\)</span> <span class="math display">\[
+\begin{aligned}
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j + \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big((Y - \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu_j \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(\mathbb{E}_{q_{-j}} \Big[\Big\|(Y - \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big] - 2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\mu_j \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Big\|\Big(Y - \bar{\nu}_{\bar{d_1}}\Big) \circ \frac{1}{\vec{\sigma}} - \mu_j \circ \frac{1}{\vec{\sigma}} \Big\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\end{aligned}
+\]</span></p></li>
+<li><p><span class="math inline">\(\oplus_\cdot = \circ\)</span> <span class="math display">\[
+\begin{aligned}
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \circ \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(-2\Big(Y \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\mu_j \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}}\Big) \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}} - \mu_j\circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\end{aligned}
+\]</span></p></li>
+</ol>
+<p>In both cases, the ELBO has the desired form.</p>
+<p><strong>Inductive Step: Assume true for <span class="math inline">\(K-1\)</span></strong> In this case, the ELBO is <span class="math display">\[
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\]</span> Define <span class="math display">\[
+\nu_{d_1} := \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg)
+\]</span></p>
+<p>So we can write the ELBO more compactly as <span class="math display">\[
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li><p><span class="math inline">\(\oplus_\cdot = +\)</span> <span class="math display">\[
+\begin{aligned}
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} + \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \\
+[\text{Split expectation over} -j] = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \mathbb{E}_{\bar{d_1}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[-2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+[\text{Inductive step, with response } Y - \bar{\nu}_{\bar{d_1}}] = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\end{aligned}
+\]</span></p></li>
+<li><p><span class="math inline">\(\oplus_{d_1 \cdots d_{K-1}} = \circ\)</span> <span class="math display">\[
+\begin{aligned}
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
+[\text{Split expectation over} -j] = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1}\Big[-2\Big(Y \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\ = \\
+[\text{Inductive Step, with response } Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}} \text{and variances } \frac{\bar{\nu^2}_{\bar{d_1}}}{\vec{\sigma}}] = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\end{aligned}
+\]</span></p></li>
+</ol>
+<p>Thus, the claim has been shown.</p>
+<p>As a consequence, the claim shows that we can update each <span class="math inline">\((q_j, g_j)\)</span> by finding the VEB solution to the weighted regression problem. All we need are the first 2 moments from all other base learners, as well as the tree structure in order to reconstruct how the other learners are related to <span class="math inline">\(\mu_j\)</span>.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.1 (2019-07-05)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 18362)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=English_United States.1252 
+[2] LC_CTYPE=English_United States.1252   
+[3] LC_MONETARY=English_United States.1252
+[4] LC_NUMERIC=C                          
+[5] LC_TIME=English_United States.1252    
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] workflowr_1.4.0 Rcpp_1.0.1      digest_0.6.20   rprojroot_1.3-2
+ [5] backports_1.1.4 git2r_0.26.1    magrittr_1.5    evaluate_0.14  
+ [9] highr_0.8       stringi_1.4.3   fs_1.3.1        whisker_0.3-2  
+[13] rmarkdown_1.14  tools_3.6.1     stringr_1.4.0   glue_1.3.1     
+[17] xfun_0.8        yaml_2.2.0      compiler_3.6.1  htmltools_0.3.6
+[21] knitr_1.23     </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

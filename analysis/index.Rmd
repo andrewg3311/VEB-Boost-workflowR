@@ -8,4 +8,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-For the main page detailing VEB-Boost, see [here](VEB_Boost_Derivation.html)
+For the main page detailing VEB-Boost, see [here](VEB_Boost_Derivation.html).

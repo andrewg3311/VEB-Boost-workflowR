@@ -112,7 +112,7 @@ $$
 
 In terms of a specific $\mu_j$ in position $s = d_1 \cdots d_K$ (and the corresponding $q_j$ and $g_j$), we can write the ELBO as
 $$
-\mathbb{E}_{q_l} \Bigg[-\frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-l}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{k-1} \bar{d_k}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
 $$
@@ -211,4 +211,4 @@ $$
 
 Thus, the claim has been shown.
 
-As a consequence, the claim shows that we can update each $(q_j, g_j)$ by finding the VEB solution to the weighted regression problem. All we need are the first 2 moments from all other base learners, as well as the tree structure in order to reconstruct how the other learners are related to $\mu_j$.
+As a consequence, the claim shows that we can update each $(q_j, g_j)$ by finding the VEB solution to the weighted regression problem with response $\tilde{Y}$ and variances $\vec{\frac{\sigma^2}{Q^2}}$. All we need are the first 2 moments from all other base learners, the tree structure in order to reconstruct how the other learners are related to $\mu_j$, and a function to solve the desired VEB problem corresponding to the prior class for $\mu_j$.

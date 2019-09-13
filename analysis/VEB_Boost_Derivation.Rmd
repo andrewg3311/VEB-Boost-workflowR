@@ -27,7 +27,7 @@ The idea behind VEB-Boosting (Variational Empirical Bayes-Boosting) is to combin
 As a result, we can represent any learner as a binary tree, where each internal node is an operation combing the learners formed the child branches ($+$ or $\circ$), and the terminal nodes represent base learners.
 
 For example, consider the binary tree below:
-![Tree Example](./docs/figures/tree_example.png)
+![Tree Example](./figures/tree_example.png)
 
 This tree represents the learner formed by the following:
 $$

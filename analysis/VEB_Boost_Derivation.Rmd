@@ -37,6 +37,8 @@ $$
 
 By constructing our learner this way, we can construct more complex learners from our base learners than traditional boosting can.
 
+All that is required of a base learner is being able to solve the general weighted regression problem using VEB, and be able to return its first 2 moments, as well as KL divergence.
+
 
 # Miscellaneous Preliminaries
 We will see later that performing variational inference in the setting with a normally distributed response and unequal variances plays a key role.
@@ -46,7 +48,7 @@ For the weighted version of a regression, we have:
 $$
 \begin{aligned}
 Y = \mu + E \\
-\mu \sim g(\cdot) \\
+\mu \sim g(\cdot) \in \mathcal{G} \\
 E \sim \mathcal{N}(0, diag(\vec{\sigma^2})) \\
 \text{Where } \quad \vec{\sigma^2} = [\sigma_1^2, \dots, \sigma_n^2]^T
 \end{aligned}

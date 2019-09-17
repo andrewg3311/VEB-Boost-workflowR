@@ -262,3 +262,187 @@ After our coordinate ascent steps for $(q_l, g_l)$, we can take a coordinate asc
 $$
 \widehat{\sigma^2} = \frac{1}{n}\Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]
 $$
+
+
+# Example
+In this section, I carry out an example, where the true mean response follows the tree structure in the example tree. For simplicity, each $\mu_j$ results from a single effect, where we have a true effect variable $X_j$ with corresponding effect $\beta_j$. The fitting function at each node is a weighted SER, where the variables included are $X_j$ and a null (randomly generated) variable $X_j^{null}$.
+
+```{r}
+source("./code/VEB_Boost_Node.R") # load VEB_Boost_Node object
+
+### MAKE DATA
+set.seed(1138)
+
+n = 1000
+
+X1 = rnorm(n)
+X2 = rnorm(n)
+X3 = rnorm(n)
+X4 = rnorm(n)
+X5 = rnorm(n)
+X1_null = rnorm(n)
+X2_null = rnorm(n)
+X3_null = rnorm(n)
+X4_null = rnorm(n)
+X5_null = rnorm(n)
+
+beta1 = rnorm(1)
+beta2 = rnorm(1)
+beta3 = rnorm(1)
+beta4 = rnorm(1)
+beta5 = rnorm(1)
+
+mu_true = ((X1*beta1) * ((X2*beta2) + (X3*beta3))) + ((X4*beta4) * (X5*beta5)) 
+
+Y = mu_true + rnorm(n)
+
+# function for calculating 2nd moment for weighted SER
+calc_Q = function(X, Sigma2, Mu, Alpha) {
+  # X is data matrix
+  # Sigma2[j, l] is the posterior variance for b_l when entry j is selected, p x L
+  # Mu[j, l] is the posterior mean for b_l when entry j is selected, p x L
+  # Alpha[j, l] is the posterior probability selecting entry j from b_l, p x L
+  # Z is matrix of covariates (e.g. column for intercept, top 10 PCs, etc)
+  # delta is current estimate for effects of Z variables
+  
+  ASU2 = Alpha * (Sigma2 + Mu^2) # [j, l] = alpha[j, l] * (Sigma2[j, l] + Mu[j, l]^2)
+  
+  Q = rowSums(X^2 %*% ASU2) # start w/ sum_l E_(ql)[(x_i' b_l)^2]
+  
+  return(Q)
+  
+}
+
+# function for calculating KL divergence for weighted SER
+calc_KL = function(Mu, Alpha, Sigma2, prior_var = 1) {
+  p = nrow(Mu)
+  L = ncol(Mu)
+  prior_weights = rep(1/p, p)
+  P = matrix(prior_weights, nrow = p, ncol = L)
+  b_post = rowSums(Alpha * Mu)
+  
+  prior_var = matrix(prior_var, nrow = p, ncol = L, byrow = T)
+  
+  KL_div = Alpha * (log(Alpha) - log(P) + (log(prior_var) / 2) - (log(Sigma2) / 2) - .5 + ((Sigma2 + Mu^2) / (2 * prior_var)))
+  KL_div[Alpha == 0] = 0
+  return(sum(KL_div))
+}
+
+# function to perform weighted SER
+weighted_SER = function(X, Y, sigma2, prior_var = 1) {
+  if (length(sigma2) == 1) {
+    sigma2 = rep(sigma2, nrow(X))
+  }
+  prior_weights = rep(1 / ncol(X), ncol(X))
+  tau = (t(X^2) %*% (1 / sigma2)) + (1 / prior_var)
+  nu = colSums(X * Y / sigma2)
+  
+  alpha = log(prior_weights) - (.5 * log(tau)) + (.5 * nu^2 / tau)
+  alpha = alpha - max(alpha)
+  alpha = exp(alpha)
+  alpha = alpha / sum(alpha)
+  
+  mu = nu / tau
+  
+  sigma2_post = 1 / tau
+  
+  mu1 = X %*% (alpha * mu)
+  mu2 = calc_Q(X, sigma2_post, mu, alpha)
+  KL_div = calc_KL(mu, alpha, sigma2_post, prior_var)
+  
+  return(list(mu1 = as.numeric(mu1), mu2 = as.numeric(mu2), KL_div = KL_div, alpha = alpha, mu = mu, sigma2_post = sigma2_post))
+}
+
+### Define fitting functions for each node
+fitFn1 = function(Y, sigma2, init) {
+  return(weighted_SER(X = cbind(X1, X1_null), Y, sigma2))
+}
+
+fitFn2 = function(Y, sigma2, init) {
+  return(weighted_SER(X = cbind(X2, X2_null), Y, sigma2))
+}
+
+fitFn3 = function(Y, sigma2, init) {
+  return(weighted_SER(X = cbind(X3, X3_null), Y, sigma2))
+}
+
+fitFn4 = function(Y, sigma2, init) {
+  return(weighted_SER(X = cbind(X4, X4_null), Y, sigma2))
+}
+
+fitFn5 = function(Y, sigma2, init) {
+  return(weighted_SER(X = cbind(X5, X5_null), Y, sigma2))
+}
+
+# generate learner, initialize fits w/ fit function w/ full response Y and variance sigma2
+learner = VEBBoostNode$new(".", operator = "+")
+learner$Y = Y
+learner$sigma2 = 1
+L = learner$AddChildVEB("L", operator = "*")$
+  AddChildVEB("mu_1", fitFunction = fitFn1, currentFit = fitFn1(learner$Y, learner$sigma2, NULL))$parent$
+  AddChildVEB("LR", operator = "+")$
+  AddChildVEB("mu_2", fitFunction = fitFn2, currentFit = fitFn2(learner$Y, learner$sigma2, NULL))$parent$
+  AddChildVEB("mu_3", fitFunction = fitFn3, currentFit = fitFn3(learner$Y, learner$sigma2, NULL))$root$
+  AddChildVEB("R", operator = "*")$
+  AddChildVEB("mu_4", fitFunction = fitFn4, currentFit = fitFn4(learner$Y, learner$sigma2, NULL))$parent$
+  AddChildVEB("mu_5", fitFunction = fitFn5, currentFit = fitFn5(learner$Y, learner$sigma2, NULL))
+
+# update until ELBO increase is < 1e-6, track ELBO along the way
+ELBOs = numeric(100)
+ELBOs[1] = -Inf
+ELBOs[2] = learner$ELBO
+i = 2
+while (ELBOs[i] - ELBOs[i-1] > 1e-6) {
+  learner$Do(function(x) x$updateFit(), filterFun = function(x) x$isLeaf)
+  i = i+1
+  ELBOs[i] = learner$ELBO
+}
+ELBOs = ELBOs[2:i]
+```
+
+First, we can plot the ELBOs:
+```{r}
+plot(ELBOs, main = "ELBOs")
+```
+As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took `r length(ELBOs)` iterations.
+
+Next, we can look at the fitted models at each node and see how they performed.
+```{r}
+make_table = function(node) {
+  name = node$name
+  beta_true = ifelse(name == "mu_1", beta1, 
+                     ifelse(name == "mu_2", beta2, 
+                            ifelse(name == "mu_3", beta3,
+                                   ifelse(name == "mu_4", beta4, beta5))))
+  
+  alpha = node$currentFit$alpha[1]
+  mu = node$currentFit$mu[1]
+  
+  return(c(alpha, mu, beta_true))
+}
+
+fit_table = sapply(c("mu_1", "mu_2", "mu_3", "mu_4", "mu_5"), function(x) make_table(learner$FindNode(x)))
+row.names(fit_table) = c("alpha", "mu", "beta_true")
+
+library(xtable)
+print(xtable(fit_table, caption = "Base Learner Fits"), comment = F)
+```
+
+As we can see, we observe the identifiability issue in practice. $\mu_1$ and $\mu_2, \; \mu_3$ joinly swapped signs ($\mu_3$ is close to null, so the sign isn't really flipped from the truth). Similarly, $\mu_4$ and $\mu_5$ jointly swapped signs.
+
+Despite this sign switching, our SERs were effectively able to identify the relevant variables (with the exception of $mu_3$, whose true effect is close to null).
+
+Next, we can look at the errors between the true mean values and the fitted first moment. As a comparison, we can fit the data (all 5 real variables and 5 null variables) with a SuSiE model where we set $L = 5$.
+```{r}
+library(susieR)
+X = cbind(X1, X2, X3, X4, X5, X1_null, X2_null, X3_null, X4_null, X5_null)
+fit.susie = susie(X, Y, L = 5)
+
+MSE_VEB = mean((mu_true - learner$mu1)^2)
+plot(mu_true - learner$mu1, ylab = "Error", main = paste("VEB-Boost Error: MSE = ", round(MSE_VEB, 3), sep = ""), pch = 19)
+
+MSE_SuSiE = mean((mu_true - fit.susie$fitted)^2)
+plot(mu_true - fit.susie$fitted, ylab = "Error", main = paste("SuSiE Error: MSE = ", round(MSE_SuSiE, 3), sep = ""), pch = 19)
+```
+
+We can see that VEB-Boost far out-performed SuSiE. This is expected due to the non-linear nature of the truth.

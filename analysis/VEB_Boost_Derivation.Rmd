@@ -102,6 +102,27 @@ $$
 
 In words, we halve the tree at each step, combining the half that doesn't include $\mu_j$ into a single learner and repeat until we get to $\mu_j$.
 
+## Combining Learners
+Recall, there are two ways to combine learners, "$+$" and "$\circ$". When we combine learners, we need to properly calculate the moments of the resulting learner.
+
+Consider learners $\nu_1 \sim q_1$, $\nu_2 \sim q_2$, where $q_1, \; q_2$ are our variational distributions, and $q_1 \perp q_2$ (as per our variational class).
+
+If we combine $\nu := \nu_1 + \nu_2$, then:
+$$
+\begin{aligned}
+\mathbb{E}_{q_1, q_2}[\nu] = \mathbb{E}_{q_1, q_2}[\nu_1 + \nu_2] = \bar{\nu_1} + \bar{\nu_2} \\
+\mathbb{E}_{q_1, q_2}[\nu^2] = \mathbb{E}_{q_1, q_2}[\nu_1^2 + 2\nu_1\nu_2 + \nu_2^2] = \bar{\nu_1^2} + 2\bar{\nu_1}\bar{\nu_2} + \bar{\nu_2^2}
+\end{aligned}
+$$
+
+If we combine $\nu := \nu_1 \ocirc \nu_2$, then:
+$$
+\begin{aligned}
+\mathbb{E}_{q_1, q_2}[\nu] = \mathbb{E}_{q_1, q_2}[\nu_1 \circ \nu_2] = \bar{\nu_1} \circ \bar{\nu_2} \\
+\mathbb{E}_{q_1, q_2}[\nu^2] = \mathbb{E}_{q_1, q_2}[\nu_1^2 \circ \nu_2^2] = \bar{\nu_1^2} \circ \bar{\nu_2^2}
+\end{aligned}
+$$
+
 
 # Derivation of VEB Coordinate Ascent Updates
 To solve the VEB problem, $\arg \max_{q \in \mathcal{Q}, g \in \mathcal{G}, \theta \in \Theta} F(q, g, \sigma^2;y)$, we can perform coordinate ascent updates, where we update each $(q_l, g_l)$ individually, and then update $\sigma^2$.
@@ -199,7 +220,7 @@ $$
 $$
 
 
-2. $\oplus_{d_1 \cdots d_{K-1}} = \circ$
+2. $\oplus_\cdot = \circ$
 $$
 \begin{aligned}
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\

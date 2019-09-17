@@ -407,7 +407,7 @@ plot(ELBOs, main = "ELBOs")
 As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took `r length(ELBOs)` iterations.
 
 Next, we can look at the fitted models at each node and see how they performed.
-```{r}
+```{r, results = "markup"}
 make_table = function(node) {
   name = node$name
   beta_true = ifelse(name == "mu_1", beta1, 
@@ -425,7 +425,7 @@ fit_table = sapply(c("mu_1", "mu_2", "mu_3", "mu_4", "mu_5"), function(x) make_t
 row.names(fit_table) = c("alpha", "mu", "beta_true")
 
 library(xtable)
-print(xtable(fit_table, caption = "Base Learner Fits"), comment = F, type = "html")
+print(xtable(fit_table, caption = "Base Learner Fits"), comment = F)
 ```
 
 As we can see, we observe the identifiability issue in practice. $\mu_1$ and $\mu_2, \; \mu_3$ joinly swapped signs ($\mu_3$ is close to null, so the sign isn't really flipped from the truth). Similarly, $\mu_4$ and $\mu_5$ jointly swapped signs.

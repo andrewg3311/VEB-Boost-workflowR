@@ -547,10 +547,10 @@ environment
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree7e3cd38e3c25e3a3ba33defb8912951474520370targetblank7e3cd38a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/7e3cd38e3c25e3a3ba33defb8912951474520370" target="_blank">7e3cd38</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreef838f83160f315a94335e768b54aa56ae4fea9fetargetblankf838f83a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/f838f83160f315a94335e768b54aa56ae4fea9fe" target="_blank">f838f83</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree7e3cd38e3c25e3a3ba33defb8912951474520370targetblank7e3cd38a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreef838f83160f315a94335e768b54aa56ae4fea9fetargetblankf838f83a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -594,6 +594,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/f838f83160f315a94335e768b54aa56ae4fea9fe/analysis/VEB_Boost_Derivation.Rmd" target="_blank">f838f83</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+<td>
+Re-running, trying to get table to show properly
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/dc63d97498bbb415ca60c5985befd0867a4dfeb5/docs/VEB_Boost_Derivation.html" target="_blank">dc63d97</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1405,8 +1439,91 @@ fit_table = sapply(c(&quot;mu_1&quot;, &quot;mu_2&quot;, &quot;mu_3&quot;, &quot
 row.names(fit_table) = c(&quot;alpha&quot;, &quot;mu&quot;, &quot;beta_true&quot;)
 
 library(xtable)
-print(xtable(fit_table, caption = &quot;Base Learner Fits&quot;), comment = F)</code></pre>
-
+print(xtable(fit_table, caption = &quot;Base Learner Fits&quot;), comment = F, type = &quot;html&quot;)</code></pre>
+<table border="1">
+<caption align="bottom">
+Base Learner Fits
+</caption>
+<tr>
+<th>
+</th>
+<th>
+mu_1
+</th>
+<th>
+mu_2
+</th>
+<th>
+mu_3
+</th>
+<th>
+mu_4
+</th>
+<th>
+mu_5
+</th>
+</tr>
+<tr>
+<td align="right">
+alpha
+</td>
+<td align="right">
+1.00
+</td>
+<td align="right">
+1.00
+</td>
+<td align="right">
+0.23
+</td>
+<td align="right">
+1.00
+</td>
+<td align="right">
+1.00
+</td>
+</tr>
+<tr>
+<td align="right">
+mu
+</td>
+<td align="right">
+-0.29
+</td>
+<td align="right">
+-1.01
+</td>
+<td align="right">
+-0.11
+</td>
+<td align="right">
+0.47
+</td>
+<td align="right">
+-0.46
+</td>
+</tr>
+<tr>
+<td align="right">
+beta_true
+</td>
+<td align="right">
+0.35
+</td>
+<td align="right">
+0.94
+</td>
+<td align="right">
+-0.02
+</td>
+<td align="right">
+-0.56
+</td>
+<td align="right">
+0.38
+</td>
+</tr>
+</table>
 <p>As we can see, we observe the identifiability issue in practice. <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\mu_2, \; \mu_3\)</span> joinly swapped signs (<span class="math inline">\(\mu_3\)</span> is close to null, so the sign isn’t really flipped from the truth). Similarly, <span class="math inline">\(\mu_4\)</span> and <span class="math inline">\(\mu_5\)</span> jointly swapped signs.</p>
 <p>Despite this sign switching, our SERs were effectively able to identify the relevant variables (with the exception of <span class="math inline">\(mu_3\)</span>, whose true effect is close to null).</p>
 <p>Next, we can look at the errors between the true mean values and the fitted first moment. As a comparison, we can fit the data (all 5 real variables and 5 null variables) with a SuSiE model where we set <span class="math inline">\(L = 5\)</span>.</p>

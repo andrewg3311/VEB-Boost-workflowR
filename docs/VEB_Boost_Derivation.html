@@ -547,10 +547,10 @@ environment
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree1fe290074e69eb9c955e6e19a135570a5d3e9b25targetblank1fe2900a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/1fe290074e69eb9c955e6e19a135570a5d3e9b25" target="_blank">1fe2900</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree2b46e5ec55c79af88778cf2a3c505cd24bfc3893targetblank2b46e5ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/2b46e5ec55c79af88778cf2a3c505cd24bfc3893" target="_blank">2b46e5e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree1fe290074e69eb9c955e6e19a135570a5d3e9b25targetblank1fe2900a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree2b46e5ec55c79af88778cf2a3c505cd24bfc3893targetblank2b46e5ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -594,6 +594,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/2b46e5ec55c79af88778cf2a3c505cd24bfc3893/analysis/VEB_Boost_Derivation.Rmd" target="_blank">2b46e5e</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+<td>
+Re-running, trying to get table to show properly
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/VEB_Boost_Derivation.html" target="_blank">54bbc42</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1246,7 +1280,45 @@ while (ELBOs[i] - ELBOs[i-1] &gt; 1e-6) {
 ELBOs = ELBOs[2:i]</code></pre>
 <p>First, we can plot the ELBOs:</p>
 <pre class="r"><code>plot(ELBOs, main = &quot;ELBOs&quot;)</code></pre>
-<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /> As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took 297 iterations.</p>
+<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-2-1.png" target="_blank">54bbc42</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took 297 iterations.</p>
 <p>Next, we can look at the fitted models at each node and see how they performed.</p>
 <pre class="r"><code>make_table = function(node) {
   name = node$name
@@ -1261,43 +1333,18 @@ ELBOs = ELBOs[2:i]</code></pre>
   return(c(alpha, mu, beta_true))
 }
 
-fit_table = sapply(c(&quot;mu_1&quot;, &quot;mu_2&quot;, &quot;mu_3&quot;, &quot;mu_4&quot;, &quot;mu_5&quot;), function(x) make_table(learner$FindNode(x)))</code></pre>
-<pre><code>Warning: &#39;learner$FindNode&#39; is deprecated.
-Use &#39;FindNode(node, ...)&#39; instead.
-See help(&quot;Deprecated&quot;)
-
-Warning: &#39;learner$FindNode&#39; is deprecated.
-Use &#39;FindNode(node, ...)&#39; instead.
-See help(&quot;Deprecated&quot;)
-
-Warning: &#39;learner$FindNode&#39; is deprecated.
-Use &#39;FindNode(node, ...)&#39; instead.
-See help(&quot;Deprecated&quot;)
-
-Warning: &#39;learner$FindNode&#39; is deprecated.
-Use &#39;FindNode(node, ...)&#39; instead.
-See help(&quot;Deprecated&quot;)
-
-Warning: &#39;learner$FindNode&#39; is deprecated.
-Use &#39;FindNode(node, ...)&#39; instead.
-See help(&quot;Deprecated&quot;)</code></pre>
-<pre class="r"><code>row.names(fit_table) = c(&quot;alpha&quot;, &quot;mu&quot;, &quot;beta_true&quot;)
+fit_table = sapply(c(&quot;mu_1&quot;, &quot;mu_2&quot;, &quot;mu_3&quot;, &quot;mu_4&quot;, &quot;mu_5&quot;), function(x) make_table(learner$FindNode(x)))
+row.names(fit_table) = c(&quot;alpha&quot;, &quot;mu&quot;, &quot;beta_true&quot;)
 
 library(xtable)
-print(xtable(fit_table, caption = &quot;Base Learner Fits&quot;), comment = F)</code></pre>
-<pre><code>\begin{table}[ht]
-\centering
-\begin{tabular}{rrrrrr}
-  \hline
- &amp; mu\_1 &amp; mu\_2 &amp; mu\_3 &amp; mu\_4 &amp; mu\_5 \\ 
-  \hline
-alpha &amp; 1.00 &amp; 1.00 &amp; 0.23 &amp; 1.00 &amp; 1.00 \\ 
-  mu &amp; -0.29 &amp; -1.01 &amp; -0.11 &amp; 0.47 &amp; -0.46 \\ 
-  beta\_true &amp; 0.35 &amp; 0.94 &amp; -0.02 &amp; -0.56 &amp; 0.38 \\ 
-   \hline
-\end{tabular}
-\caption{Base Learner Fits} 
-\end{table}</code></pre>
+print(xtable(fit_table, caption = &quot;Base Learner Fits&quot;), comment = F, type = &quot;html&quot;)</code></pre>
+<pre><code>&lt;table border=1&gt;
+&lt;caption align=&quot;bottom&quot;&gt; Base Learner Fits &lt;/caption&gt;
+&lt;tr&gt; &lt;th&gt;  &lt;/th&gt; &lt;th&gt; mu_1 &lt;/th&gt; &lt;th&gt; mu_2 &lt;/th&gt; &lt;th&gt; mu_3 &lt;/th&gt; &lt;th&gt; mu_4 &lt;/th&gt; &lt;th&gt; mu_5 &lt;/th&gt;  &lt;/tr&gt;
+  &lt;tr&gt; &lt;td align=&quot;right&quot;&gt; alpha &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 1.00 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 1.00 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 0.23 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 1.00 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 1.00 &lt;/td&gt; &lt;/tr&gt;
+  &lt;tr&gt; &lt;td align=&quot;right&quot;&gt; mu &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; -0.29 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; -1.01 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; -0.11 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 0.47 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; -0.46 &lt;/td&gt; &lt;/tr&gt;
+  &lt;tr&gt; &lt;td align=&quot;right&quot;&gt; beta_true &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 0.35 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 0.94 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; -0.02 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; -0.56 &lt;/td&gt; &lt;td align=&quot;right&quot;&gt; 0.38 &lt;/td&gt; &lt;/tr&gt;
+   &lt;/table&gt;</code></pre>
 <p>As we can see, we observe the identifiability issue in practice. <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\mu_2, \; \mu_3\)</span> joinly swapped signs (<span class="math inline">\(\mu_3\)</span> is close to null, so the sign isn’t really flipped from the truth). Similarly, <span class="math inline">\(\mu_4\)</span> and <span class="math inline">\(\mu_5\)</span> jointly swapped signs.</p>
 <p>Despite this sign switching, our SERs were effectively able to identify the relevant variables (with the exception of <span class="math inline">\(mu_3\)</span>, whose true effect is close to null).</p>
 <p>Next, we can look at the errors between the true mean values and the fitted first moment. As a comparison, we can fit the data (all 5 real variables and 5 null variables) with a SuSiE model where we set <span class="math inline">\(L = 5\)</span>.</p>
@@ -1308,9 +1355,83 @@ fit.susie = susie(X, Y, L = 5)
 MSE_VEB = mean((mu_true - learner$mu1)^2)
 plot(mu_true - learner$mu1, ylab = &quot;Error&quot;, main = paste(&quot;VEB-Boost Error: MSE = &quot;, round(MSE_VEB, 3), sep = &quot;&quot;), pch = 19)</code></pre>
 <p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-1.png" target="_blank">54bbc42</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>MSE_SuSiE = mean((mu_true - fit.susie$fitted)^2)
 plot(mu_true - fit.susie$fitted, ylab = &quot;Error&quot;, main = paste(&quot;SuSiE Error: MSE = &quot;, round(MSE_SuSiE, 3), sep = &quot;&quot;), pch = 19)</code></pre>
 <p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-2">
+Past versions of unnamed-chunk-4-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-2.png" target="_blank">54bbc42</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>We can see that VEB-Boost far out-performed SuSiE. This is expected due to the non-linear nature of the truth.</p>
 <br>
 <p>

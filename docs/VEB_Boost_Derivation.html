@@ -411,7 +411,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-09-13
+<strong>Last updated:</strong> 2019-09-17
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -547,17 +547,20 @@ environment
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreeecb7e16b68baa11cf70266ebdc34520869026638targetblankecb7e16a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/ecb7e16b68baa11cf70266ebdc34520869026638" target="_blank">ecb7e16</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreedc8b7b12c6570592e251ac76990e070c57085f73targetblankdc8b7b1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/dc8b7b12c6570592e251ac76990e070c57085f73" target="_blank">dc8b7b1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreeecb7e16b68baa11cf70266ebdc34520869026638targetblankecb7e16a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreedc8b7b12c6570592e251ac76990e070c57085f73targetblankdc8b7b1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Untracked files:
-    Untracked:  code/Classes/
+    Untracked:  code/Archive/
+    Untracked:  code/VEB_Boost_Node.R
+    Untracked:  code/example_test.R
+    Untracked:  code/weighted_SER_test.R
 
 </code></pre>
 <p>
@@ -596,6 +599,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/dc8b7b12c6570592e251ac76990e070c57085f73/analysis/VEB_Boost_Derivation.Rmd" target="_blank">dc8b7b1</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+<td>
+Adding a bit about moments of combined learners, and fixing one typo
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/ed20572c21d5836fcbce12a913037e2f46888586/docs/VEB_Boost_Derivation.html" target="_blank">ed20572</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -856,6 +893,23 @@ q\Big(\mu_1, \dots, \mu_L\Big) = \prod_{j=1}^L q_j\Big(\mu_j\Big)
 \]</span></p>
 <p>In words, we halve the tree at each step, combining the half that doesn’t include <span class="math inline">\(\mu_j\)</span> into a single learner and repeat until we get to <span class="math inline">\(\mu_j\)</span>.</p>
 </div>
+<div id="combining-learners" class="section level2">
+<h2>Combining Learners</h2>
+<p>Recall, there are two ways to combine learners, “<span class="math inline">\(+\)</span>” and “<span class="math inline">\(\circ\)</span>”. When we combine learners, we need to properly calculate the moments of the resulting learner.</p>
+<p>Consider learners <span class="math inline">\(\nu_1 \sim q_1\)</span>, <span class="math inline">\(\nu_2 \sim q_2\)</span>, where <span class="math inline">\(q_1, \; q_2\)</span> are our variational distributions, and <span class="math inline">\(q_1 \perp q_2\)</span> (as per our variational class).</p>
+<p>If we combine <span class="math inline">\(\nu := \nu_1 + \nu_2\)</span>, then: <span class="math display">\[
+\begin{aligned}
+\mathbb{E}_{q_1, q_2}[\nu] = \mathbb{E}_{q_1, q_2}[\nu_1 + \nu_2] = \bar{\nu_1} + \bar{\nu_2} \\
+\mathbb{E}_{q_1, q_2}[\nu^2] = \mathbb{E}_{q_1, q_2}[\nu_1^2 + 2\nu_1\nu_2 + \nu_2^2] = \bar{\nu_1^2} + 2\bar{\nu_1}\bar{\nu_2} + \bar{\nu_2^2}
+\end{aligned}
+\]</span></p>
+<p>If we combine <span class="math inline">\(\nu := \nu_1 \ocirc \nu_2\)</span>, then: <span class="math display">\[
+\begin{aligned}
+\mathbb{E}_{q_1, q_2}[\nu] = \mathbb{E}_{q_1, q_2}[\nu_1 \circ \nu_2] = \bar{\nu_1} \circ \bar{\nu_2} \\
+\mathbb{E}_{q_1, q_2}[\nu^2] = \mathbb{E}_{q_1, q_2}[\nu_1^2 \circ \nu_2^2] = \bar{\nu_1^2} \circ \bar{\nu_2^2}
+\end{aligned}
+\]</span></p>
+</div>
 </div>
 <div id="derivation-of-veb-coordinate-ascent-updates" class="section level1">
 <h1>Derivation of VEB Coordinate Ascent Updates</h1>
@@ -924,7 +978,7 @@ F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=
 \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
 \end{aligned}
 \]</span></p></li>
-<li><p><span class="math inline">\(\oplus_{d_1 \cdots d_{K-1}} = \circ\)</span> <span class="math display">\[
+<li><p><span class="math inline">\(\oplus_\cdot = \circ\)</span> <span class="math display">\[
 \begin{aligned}
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
 [\text{Split expectation over} -j] = \\

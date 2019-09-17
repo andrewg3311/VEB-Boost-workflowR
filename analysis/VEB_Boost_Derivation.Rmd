@@ -115,7 +115,7 @@ $$
 \end{aligned}
 $$
 
-If we combine $\nu := \nu_1 \ocirc \nu_2$, then:
+If we combine $\nu := \nu_1 \circ \nu_2$, then:
 $$
 \begin{aligned}
 \mathbb{E}_{q_1, q_2}[\nu] = \mathbb{E}_{q_1, q_2}[\nu_1 \circ \nu_2] = \bar{\nu_1} \circ \bar{\nu_2} \\

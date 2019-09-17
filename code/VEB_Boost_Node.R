@@ -10,33 +10,6 @@ VEBBoostNode <- R6::R6Class(
     
     currentFit = NULL, # current fit for fitting function
     
-    # initialize = function(..., operator = NULL, fitFunction = NULL, currentFit = NULL) {
-    #   self = data.tree::Node$new(...)
-    #   self$operator = operator
-    #   self$fitFunction = fitFunction
-    #   self$currentFit = currentFit
-    #   
-    #   # checks
-    #   if (self$isLeaf) { # if terminal node
-    #     if (!is.null(self$operator)) {
-    #       stop("Terminal nodes cannot have an operator")
-    #     }
-    #     if (is.null(fitFunction)) {
-    #       stop("Terminal nodes must have a fit function")
-    #     }
-    #   } else { # if internal node
-    #     if (is.null(self$operator)) {
-    #       stop("Internal nodes must have an operator")
-    #     } else if (!(operator %in% c("+", "*"))) {
-    #       stop("Invalid operator, must be one of '+' or '*'")
-    #     }
-    #     if (!is.null(self$fitFunction)) {
-    #       stop("Internal nodes cannot have a fit function")
-    #     }
-    #   }
-    # 
-    # },
-    
     AddChildVEB = function(name, check = c("check", "no-warn", "no-check"), ...) { # add VEB node as child
       child = VEBBoostNode$new(as.character(name), check, ...)
       invisible(self$AddChildNode(child))

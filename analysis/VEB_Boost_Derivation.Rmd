@@ -123,6 +123,11 @@ $$
 \end{aligned}
 $$
 
+## Cautionary Note
+One observation worth noting is that there is an identifiability issue present for the signs of the base learners when we include Schur multiplication, and our prior distribution for $\mu_j$ is symmetric about 0. For example, in the example tree above, we can flip the signs for $\mu_1$ and $\mu_2, \; \mu_3$ jointly. This will yield the same tree-defined mean. So if our priors for these base learners is symmetric about 0, then we cannot identify the sign of the base learners.
+
+Although this does not alter the fitted values for the overall learner, this makes interpretation more difficult. It also raises the point that the distributions for different nodes are far from independent from one another, despite our variational approximation. However, this is usually the case when making the standard independence assumption in variational inference.
+
 
 # Derivation of VEB Coordinate Ascent Updates
 To solve the VEB problem, $\arg \max_{q \in \mathcal{Q}, g \in \mathcal{G}, \theta \in \Theta} F(q, g, \sigma^2;y)$, we can perform coordinate ascent updates, where we update each $(q_l, g_l)$ individually, and then update $\sigma^2$.

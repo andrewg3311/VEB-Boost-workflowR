@@ -425,7 +425,7 @@ fit_table = sapply(c("mu_1", "mu_2", "mu_3", "mu_4", "mu_5"), function(x) make_t
 row.names(fit_table) = c("alpha", "mu", "beta_true")
 
 library(xtable)
-print(xtable(fit_table, caption = "Base Learner Fits"), comment = F)
+print(xtable(fit_table, caption = "Base Learner Fits"), comment = F, type = "html")
 ```
 
 As we can see, we observe the identifiability issue in practice. $\mu_1$ and $\mu_2, \; \mu_3$ joinly swapped signs ($\mu_3$ is close to null, so the sign isn't really flipped from the truth). Similarly, $\mu_4$ and $\mu_5$ jointly swapped signs.

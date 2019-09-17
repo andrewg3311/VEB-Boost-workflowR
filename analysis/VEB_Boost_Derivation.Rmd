@@ -407,7 +407,7 @@ plot(ELBOs, main = "ELBOs")
 As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took `r length(ELBOs)` iterations.
 
 Next, we can look at the fitted models at each node and see how they performed.
-```{r, results = "markup"}
+```{r, results = "asis"}
 make_table = function(node) {
   name = node$name
   beta_true = ifelse(name == "mu_1", beta1, 

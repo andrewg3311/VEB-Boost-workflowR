@@ -411,7 +411,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-09-17
+<strong>Last updated:</strong> 2019-09-18
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -547,10 +547,10 @@ environment
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreef838f83160f315a94335e768b54aa56ae4fea9fetargetblankf838f83a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/f838f83160f315a94335e768b54aa56ae4fea9fe" target="_blank">f838f83</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree850e8302ad18b990fc8c190b27bfbb065fd47951targetblank850e830a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/850e8302ad18b990fc8c190b27bfbb065fd47951" target="_blank">850e830</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttreef838f83160f315a94335e768b54aa56ae4fea9fetargetblankf838f83a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree850e8302ad18b990fc8c190b27bfbb065fd47951targetblank850e830a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -594,6 +594,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/850e8302ad18b990fc8c190b27bfbb065fd47951/analysis/VEB_Boost_Derivation.Rmd" target="_blank">850e830</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-18
+</td>
+<td>
+Adding an example where we fit SuSiE model w/ Tree and compare
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/9b006bbb84b4a58fdef3434fe8506234e0f66f87/docs/VEB_Boost_Derivation.html" target="_blank">9b006bb</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2019-09-17
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1247,36 +1281,10 @@ F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=
 \]</span></p>
 </div>
 </div>
-<div id="example" class="section level1">
-<h1>Example</h1>
-<p>In this section, I carry out an example, where the true mean response follows the tree structure in the example tree. For simplicity, each <span class="math inline">\(\mu_j\)</span> results from a single effect, where we have a true effect variable <span class="math inline">\(X_j\)</span> with corresponding effect <span class="math inline">\(\beta_j\)</span>. The fitting function at each node is a weighted SER, where the variables included are <span class="math inline">\(X_j\)</span> and a null (randomly generated) variable <span class="math inline">\(X_j^{null}\)</span>.</p>
+<div id="examples" class="section level1">
+<h1>Examples</h1>
+<p>Below, I load the VEB-Boost-Node object, and define some functions needed for running a weighted SuSiE SER.</p>
 <pre class="r"><code>source(&quot;./code/VEB_Boost_Node.R&quot;) # load VEB_Boost_Node object
-
-### MAKE DATA
-set.seed(1138)
-
-n = 1000
-
-X1 = rnorm(n)
-X2 = rnorm(n)
-X3 = rnorm(n)
-X4 = rnorm(n)
-X5 = rnorm(n)
-X1_null = rnorm(n)
-X2_null = rnorm(n)
-X3_null = rnorm(n)
-X4_null = rnorm(n)
-X5_null = rnorm(n)
-
-beta1 = rnorm(1)
-beta2 = rnorm(1)
-beta3 = rnorm(1)
-beta4 = rnorm(1)
-beta5 = rnorm(1)
-
-mu_true = ((X1*beta1) * ((X2*beta2) + (X3*beta3))) + ((X4*beta4) * (X5*beta5)) 
-
-Y = mu_true + rnorm(n)
 
 # function for calculating 2nd moment for weighted SER
 calc_Q = function(X, Sigma2, Mu, Alpha) {
@@ -1335,6 +1343,94 @@ weighted_SER = function(X, Y, sigma2, prior_var = 1) {
   return(list(mu1 = as.numeric(mu1), mu2 = as.numeric(mu2), KL_div = KL_div, alpha = alpha, mu = mu, sigma2_post = sigma2_post))
 }
 
+### MAKE DATA
+set.seed(1138)
+
+n = 1000
+
+X1 = rnorm(n)
+X2 = rnorm(n)
+X3 = rnorm(n)
+X4 = rnorm(n)
+X5 = rnorm(n)
+X1_null = rnorm(n)
+X2_null = rnorm(n)
+X3_null = rnorm(n)
+X4_null = rnorm(n)
+X5_null = rnorm(n)
+
+X = cbind(X1, X2, X3, X4, X5, X1_null, X2_null, X3_null, X4_null, X5_null)
+
+beta1 = rnorm(1)
+beta2 = rnorm(1)
+beta3 = rnorm(1)
+beta4 = rnorm(1)
+beta5 = rnorm(1)
+
+library(susieR) # for later</code></pre>
+<div id="susie-example" class="section level2">
+<h2>SuSiE Example</h2>
+<p>If all operators are “+”, and each fitting function is a single effect regression with the SuSiuE SER prior, and the same matrix of predictors is used for all base learners, then this is equivalent to SuSiE with <span class="math inline">\(L\)</span> effects (where <span class="math inline">\(L\)</span> is the number of terminal nodes in our tree)</p>
+<p>Below, I generate data from the SuSiE model with <span class="math inline">\(L = 5\)</span> effects. I also generate 5 “null” variables to include in my model fitting procedure. I fit the data with a regular SuSiE call (without an intercept), as well as using VEB-Boost with a tree structure with 5 terminal nodes and all operators are “+”. For simplicity, I fix the prior variance to be 1 in both cases rather than estimate it.</p>
+<pre class="r"><code>mu_true = (X1*beta1) + (X2*beta2) + (X3*beta3) + (X4*beta4) + (X5*beta5)
+
+Y = mu_true + rnorm(n)
+
+fitFn = function(Y, sigma2, init) {
+  return(weighted_SER(X, Y, sigma2))
+}
+
+# generate learner, initialize fits w/ fit function w/ full response Y and variance sigma2
+learner = VEBBoostNode$new(&quot;.&quot;, operator = &quot;+&quot;)
+learner$Y = Y
+learner$sigma2 = 1
+L = learner$AddChildVEB(&quot;L&quot;, operator = &quot;+&quot;)$
+  AddChildVEB(&quot;mu_1&quot;, fitFunction = fitFn, currentFit = list(mu1 = rep(0, length(Y)), mu2 = rep(1, length(Y)), KL_div = 1))$parent$
+  AddChildVEB(&quot;LR&quot;, operator = &quot;+&quot;)$
+  AddChildVEB(&quot;mu_2&quot;, fitFunction = fitFn, currentFit =list(mu1 = rep(0, length(Y)), mu2 = rep(1, length(Y)), KL_div = 1))$parent$
+  AddChildVEB(&quot;mu_3&quot;, fitFunction = fitFn, currentFit = list(mu1 = rep(0, length(Y)), mu2 = rep(1, length(Y)), KL_div = 1))$root$
+  AddChildVEB(&quot;R&quot;, operator = &quot;+&quot;)$
+  AddChildVEB(&quot;mu_4&quot;, fitFunction = fitFn, currentFit = list(mu1 = rep(0, length(Y)), mu2 = rep(1, length(Y)), KL_div = 1))$parent$
+  AddChildVEB(&quot;mu_5&quot;, fitFunction = fitFn, currentFit = list(mu1 = rep(0, length(Y)), mu2 = rep(1, length(Y)), KL_div = 1))
+
+# update until ELBO increase is &lt; 1e-6, track ELBO along the way
+ELBOs = numeric(100)
+ELBOs[1] = -Inf
+ELBOs[2] = learner$ELBO
+i = 2
+while (ELBOs[i] - ELBOs[i-1] &gt; 1e-6) {
+  learner$Do(function(x) x$updateFit(), filterFun = function(x) x$isLeaf)
+  i = i+1
+  ELBOs[i] = learner$ELBO
+}
+ELBOs = ELBOs[2:i]
+
+susie.fit = fit.susie = susie(X, Y, L = 5, scaled_prior_variance = 1 / var(Y), intercept = F, tol = 1e-6)</code></pre>
+<p>In the code above, when fitting the tree, I have forced the initialization of the base learners to have a first moment of 0 and a second moment of 1 (in an attempt to initialize in a similar way to SuSiE). I have also fit SuSiE without an intercept for simplicity.</p>
+<p>The first two plots below show the effect vectors from each of the 5 effects, fitted from the tree and SuSiE respectively. The third plot shows the difference between the fitted values between the tree and SuSiE fit.</p>
+<pre class="r"><code>effect_mat_tree = matrix(0, nrow = ncol(X), ncol = 5)
+for (i in 1:5) {
+  name = paste(&quot;mu_&quot;, i, sep = &quot;&quot;)
+  node = learner$FindNode(name)
+  effect_mat_tree[, i] = node$currentFit$mu * node$currentFit$alpha
+}
+
+par(mfrow = c(1, 2))
+matplot(effect_mat_tree, type = &#39;l&#39;, ylab = &quot;Effect&quot;, main = &quot;Tree Fit Effects&quot;)
+matplot(t(susie.fit$mu * susie.fit$alpha), type = &#39;l&#39;, ylab = &quot;Effect&quot;, main = &quot;SuSiE Fit Effects&quot;)</code></pre>
+<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mfrow = c(1, 1))
+plot(susie.fit$fitted - learner$mu1, ylab = &quot;Difference in Fitted Values&quot;, main = &quot;SuSiE vs. Tree Fitted Values&quot;, pch = 19)</code></pre>
+<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /> The plots show that the fitted effect vectors are virtually identical, and that the fitted values are almost 0.</p>
+</div>
+<div id="example-with-truth-generated-from-the-tree-structure-image-above" class="section level2">
+<h2>Example with Truth Generated from the Tree Structure Image Above</h2>
+<p>In this section, I carry out an example, where the true mean response follows the tree structure in the example tree. For simplicity, each <span class="math inline">\(\mu_j\)</span> results from a single effect, where we have a true effect variable <span class="math inline">\(X_j\)</span> with corresponding effect <span class="math inline">\(\beta_j\)</span>. The fitting function at each node is a weighted SER, where the variables included are <span class="math inline">\(X_j\)</span> and a null (randomly generated) variable <span class="math inline">\(X_j^{null}\)</span>.</p>
+<pre class="r"><code>mu_true = ((X1*beta1) * ((X2*beta2) + (X3*beta3))) + ((X4*beta4) * (X5*beta5)) 
+
+Y = mu_true + rnorm(n)
+
+
 ### Define fitting functions for each node
 fitFn1 = function(Y, sigma2, init) {
   return(weighted_SER(X = cbind(X1, X1_null), Y, sigma2))
@@ -1382,45 +1478,7 @@ while (ELBOs[i] - ELBOs[i-1] &gt; 1e-6) {
 ELBOs = ELBOs[2:i]</code></pre>
 <p>First, we can plot the ELBOs:</p>
 <pre class="r"><code>plot(ELBOs, main = &quot;ELBOs&quot;)</code></pre>
-<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
-Past versions of unnamed-chunk-2-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-2-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/andrewg3311/VEB-Boost/blob/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-2-1.png" target="_blank">54bbc42</a>
-</td>
-<td>
-Andrew Goldstein
-</td>
-<td>
-2019-09-17
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took 297 iterations.</p>
+<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /> As a sanity-check, we see that the ELBO is monotonically increasing. However, to achieve this level of convergence, it took 387 iterations.</p>
 <p>Next, we can look at the fitted models at each node and see how they performed.</p>
 <pre class="r"><code>make_table = function(node) {
   name = node$name
@@ -1474,7 +1532,7 @@ alpha
 1.00
 </td>
 <td align="right">
-0.23
+0.01
 </td>
 <td align="right">
 1.00
@@ -1488,19 +1546,19 @@ alpha
 mu
 </td>
 <td align="right">
--0.29
+0.35
 </td>
 <td align="right">
--1.01
+1.01
 </td>
 <td align="right">
--0.11
+-0.06
 </td>
 <td align="right">
-0.47
+0.49
 </td>
 <td align="right">
--0.46
+-0.49
 </td>
 </tr>
 <tr>
@@ -1527,90 +1585,14 @@ beta_true
 <p>As we can see, we observe the identifiability issue in practice. <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\mu_2, \; \mu_3\)</span> joinly swapped signs (<span class="math inline">\(\mu_3\)</span> is close to null, so the sign isn’t really flipped from the truth). Similarly, <span class="math inline">\(\mu_4\)</span> and <span class="math inline">\(\mu_5\)</span> jointly swapped signs.</p>
 <p>Despite this sign switching, our SERs were effectively able to identify the relevant variables (with the exception of <span class="math inline">\(mu_3\)</span>, whose true effect is close to null).</p>
 <p>Next, we can look at the errors between the true mean values and the fitted first moment. As a comparison, we can fit the data (all 5 real variables and 5 null variables) with a SuSiE model where we set <span class="math inline">\(L = 5\)</span>.</p>
-<pre class="r"><code>library(susieR)
-X = cbind(X1, X2, X3, X4, X5, X1_null, X2_null, X3_null, X4_null, X5_null)
-fit.susie = susie(X, Y, L = 5)
+<pre class="r"><code>fit.susie = susie(X, Y, L = 5)
 
 MSE_VEB = mean((mu_true - learner$mu1)^2)
 plot(mu_true - learner$mu1, ylab = &quot;Error&quot;, main = paste(&quot;VEB-Boost Error: MSE = &quot;, round(MSE_VEB, 3), sep = &quot;&quot;), pch = 19)</code></pre>
-<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
-Past versions of unnamed-chunk-4-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-4-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/andrewg3311/VEB-Boost/blob/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-1.png" target="_blank">54bbc42</a>
-</td>
-<td>
-Andrew Goldstein
-</td>
-<td>
-2019-09-17
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>MSE_SuSiE = mean((mu_true - fit.susie$fitted)^2)
 plot(mu_true - fit.susie$fitted, ylab = &quot;Error&quot;, main = paste(&quot;SuSiE Error: MSE = &quot;, round(MSE_SuSiE, 3), sep = &quot;&quot;), pch = 19)</code></pre>
-<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-2">
-Past versions of unnamed-chunk-4-2.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-4-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/andrewg3311/VEB-Boost/blob/54bbc42fdd5e8ffe2d3d4ca5f486800dce0c0e6a/docs/figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-4-2.png" target="_blank">54bbc42</a>
-</td>
-<td>
-Andrew Goldstein
-</td>
-<td>
-2019-09-17
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/VEB_Boost_Derivation.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can see that VEB-Boost far out-performed SuSiE. This is expected due to the non-linear nature of the truth.</p>
 <br>
 <p>
@@ -1637,12 +1619,12 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] susieR_0.6.2.0390 xtable_1.8-4     
+[1] xtable_1.8-4      susieR_0.6.2.0390
 
 loaded via a namespace (and not attached):
  [1] tidyselect_0.2.5   xfun_0.8           Rook_1.1-1        
- [4] purrr_0.3.2        lattice_0.20-38    expm_0.999-4      
- [7] colorspace_1.4-1   vctrs_0.2.0        htmltools_0.3.6   
+ [4] purrr_0.3.2        lattice_0.20-38    colorspace_1.4-1  
+ [7] vctrs_0.2.0        expm_0.999-4       htmltools_0.3.6   
 [10] viridisLite_0.3.0  yaml_2.2.0         XML_3.98-1.20     
 [13] rlang_0.4.0        pillar_1.4.2       glue_1.3.1        
 [16] RColorBrewer_1.1-2 matrixStats_0.54.0 stringr_1.4.0     
@@ -1654,7 +1636,7 @@ loaded via a namespace (and not attached):
 [34] rgexf_0.15.3       fs_1.3.1           gridExtra_2.3     
 [37] brew_1.0-6         ggplot2_3.2.0      hms_0.5.0         
 [40] digest_0.6.20      stringi_1.4.3      dplyr_0.8.3       
-[43] rprojroot_1.3-2    grid_3.6.1         influenceR_0.1.0  
+[43] grid_3.6.1         rprojroot_1.3-2    influenceR_0.1.0  
 [46] tools_3.6.1        magrittr_1.5       lazyeval_0.2.2    
 [49] tibble_2.1.3       crayon_1.3.4       whisker_0.3-2     
 [52] tidyr_0.8.3        pkgconfig_2.0.2    zeallot_0.1.0     
@@ -1662,6 +1644,7 @@ loaded via a namespace (and not attached):
 [58] rmarkdown_1.14     rstudioapi_0.10    viridis_0.5.1     
 [61] R6_2.4.0           igraph_1.2.4.1     git2r_0.26.1      
 [64] compiler_3.6.1    </code></pre>
+</div>
 </div>
 </div>
 

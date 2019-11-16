@@ -17,6 +17,8 @@ VEBBoostNodeComp <- R6::R6Class(
     
     predFunction = NULL, # function to predict based on current fit
     
+    family = "gaussian",
+    
     ebCombineOperator = "+", # operator used to split current node. tries "+", then "*", then "." for locked
     
     nextNumber = 1,
@@ -459,7 +461,16 @@ VEBBoostNodeComp <- R6::R6Class(
     Y = function(value) { # response for sub-tree
       if (missing(value)) {
         if (self$isRoot) {
-          return(private$.Y)
+          if (self$root$family == "gaussian") {
+            return(private$.Y)
+          } else if (self$root$family == "binomial") {
+            g_xi = g(self$root$xi) # vector of g(xi_i), pre-compute once
+            d = ((g_xi - .5) / self$root$xi) # vector of (g(xi_i) - .5) / xi_i, pre-compute once
+            d[self$root$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
+            return((private$.Y - .5) / d)
+          } else {
+            stop("family must be either 'gaussian' or 'binomial")
+          }
         }
         if (self$parent$operator == "+") {
           return(self$parent$Y - self$siblings[[1]]$mu1)
@@ -476,10 +487,30 @@ VEBBoostNodeComp <- R6::R6Class(
       }
     },
     
+    raw_Y = function(value) { # raw value of private$.Y, only needed for logistic ELBO
+      if (!missing(value)) {
+        stop("`$raw_Y` cannot be modified directly", call. = FALSE)
+      }
+      if (self$isRoot) {
+        return(private$.Y)
+      } else {
+        return(self$parent$raw_Y)
+      }
+    }, 
+    
     sigma2 = function(value) { # variance for sub-tree
       if (missing(value)) {
         if (self$isRoot) {
-          return(private$.sigma2)
+          if (self$root$family == "gaussian") {
+            return(private$.sigma2)
+          } else if (self$root$family == "binomial") {
+            g_xi = g(self$root$xi) # vector of g(xi_i), pre-compute once
+            d = ((g_xi - .5) / self$root$xi) # vector of (g(xi_i) - .5) / xi_i, pre-compute once
+            d[self$root$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
+            return(1 / d)
+          } else {
+            stop("family must be either 'gaussian' or 'binomial")
+          }
         }
         if (self$parent$operator == "+") {
           return(self$parent$sigma2)
@@ -518,15 +549,34 @@ VEBBoostNodeComp <- R6::R6Class(
       }
       # make s2 vector of variances
       #s2 = ifelse(length(self$sigma2) == 1, rep(self$sigma2, length(self$Y)), self$sigma2) # something weird w/ this if-else, not sure why
-      s2 = self$sigma2
-      if (length(s2) == 1) {
-        s2 = rep(s2, length(self$Y))
+      if (self$root$family == "gaussian") {
+        s2 = self$sigma2
+        if (length(s2) == 1) {
+          s2 = rep(s2, length(self$Y))
+        }
+        return(
+          (-.5 * sum(log(2*pi*s2))) - 
+            (.5 * (sum(self$Y^2 / s2) - 2*sum(self$Y * self$mu1 / s2) + sum(self$mu2 / s2))) - 
+            self$KL_div
+        )
+      } else if (self$root$family == "binomial") {
+        g_xi = g(self$root$xi) # vector of g(xi_i), pre-compute once
+        d = ((g_xi - .5) / self$root$xi) # vector of (g(xi_i) - .5) / xi_i, pre-compute once
+        d[self$root$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
+        return(
+          sum(log(g_xi)) + sum((self$root$xi / 2)*(d*self$root$xi - 1)) + sum((self$root$raw_Y - .5) * self$root$mu1) - 
+            .5*sum(self$root$mu2 * d) - self$KL_div
+        )
+      } else {
+        stop("family must be either 'gaussian' or 'binomial")
       }
-      return(
-        (-.5 * sum(log(2*pi*s2))) - 
-          (.5 * (sum(self$Y^2 / s2) - 2*sum(self$Y * self$mu1 / s2) + sum(self$mu2 / s2))) - 
-          self$KL_div
-      )
+    }, 
+
+    xi = function(value) { # optimal variational parameters, set to +sqrt(mu2)
+      if (!missing(value)) {
+        stop("`$xi` cannot be modified directly", call. = FALSE)
+      }
+      return(sqrt(self$root$mu2))
     }, 
     
     isLocked = function(value) { # locked <=> V < V_tol, or both learners directly connected (sibling and parent's sibling) are constant
@@ -718,3 +768,8 @@ predFnConstComp = function(X_new, currentFit, moment = c(1, 2)) {
 #     stop("`moment` must be either 1 or 2")
 #   }
 # }
+
+g = function(x) {
+  1 / (1 + exp(-x))
+}
+  

@@ -6,8 +6,8 @@
 
 ### THIS version modifies updateMoments() and updateFit() so that you only update what's necessary, hopefully decreasing over-head
 
-VEBBoostNodeComp2 <- R6::R6Class(
-  "VEBBoostNodeComp2", 
+VEBBoostNode <- R6::R6Class(
+  "VEBBoostNode", 
   public = list(
     operator = NULL, # either "+" or "*" for internal nodes, NULL for terminal nodes
     
@@ -146,7 +146,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
     #   #base_elbos = sapply(base_learners, function(x) x$ELBO)
     #   #node_to_split = base_learners[[which.min(base_elbos)]]
     #   
-    #   node_clone = VEBBoostNodeComp$new(node_to_split$name, fitFunction = node_to_split$fitFunction, currentFit = node_to_split$currentFit)
+    #   node_clone = VEBBoostNode$new(node_to_split$name, fitFunction = node_to_split$fitFunction, currentFit = node_to_split$currentFit)
     #   node_clone$X = node_to_split$X
     #   node_clone$Y = node_to_split$Y
     #   node_clone$sigma2 = node_to_split$sigma2
@@ -169,22 +169,22 @@ VEBBoostNodeComp2 <- R6::R6Class(
     #   }
     #   
     #   # try adding nodes, see how we do
-    #   add_node = VEBBoostNodeComp$new(learner_name, fitFunction = fitFn, currentFit = currentFitAdd)
+    #   add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, currentFit = currentFitAdd)
     #   add_learner = node_clone$AddSiblingVEB(add_node, "+", "add")
     #   add_learner$convergeFit(tol)
     #   
     #   # now try multiplying nodes, see how we do
-    #   mult_node = VEBBoostNodeComp$new(learner_name, fitFunction = fitFn, currentFit = currentFitMult)
+    #   mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, currentFit = currentFitMult)
     #   mult_learner = node_clone2$AddSiblingVEB(mult_node, "*", "mult")
     #   mult_learner$convergeFit(tol)
     #   
     #   if (add_learner$ELBO >= mult_learner$ELBO) {
     #     node_to_split$currentFit = add_learner[[node_to_split$name]]$currentFit
-    #     new_node = VEBBoostNodeComp$new(learner_name, fitFunction = add_node$fitFunction, currentFit = add_node$currentFit)
+    #     new_node = VEBBoostNode$new(learner_name, fitFunction = add_node$fitFunction, currentFit = add_node$currentFit)
     #     node_to_split$AddSiblingVEB(new_node, "+", combine_name)
     #   } else {
     #     node_to_split$currentFit = mult_learner[[node_to_split$name]]$currentFit
-    #     new_node = VEBBoostNodeComp$new(learner_name, fitFunction = mult_node$fitFunction, currentFit = mult_node$currentFit)
+    #     new_node = VEBBoostNode$new(learner_name, fitFunction = mult_node$fitFunction, currentFit = mult_node$currentFit)
     #     node_to_split$AddSiblingVEB(new_node, "*", combine_name)
     #   }
     #   
@@ -230,7 +230,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
         }, silent = T)
         
         add_fit = list(mu1 = rep(0, length(learner$Y)), mu2 = rep(0, length(learner$Y)), KL_div = 0)
-        add_node = VEBBoostNodeComp2$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = add_fit)
+        add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = add_fit)
         learner$AddSiblingVEB(add_node, "+", combine_name)
         
         learner_name = paste("mu_", learner$root$nextNumber, sep = '')
@@ -240,7 +240,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
         }, silent = T)
         
         mult_fit = list(mu1 = rep(1, length(learner$Y)), mu2 = rep(1, length(learner$Y)), KL_div = 0)
-        mult_node = VEBBoostNodeComp2$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = mult_fit)
+        mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = mult_fit)
         learner$children[[1]]$AddSiblingVEB(mult_node, "*", combine_name)
       }
       
@@ -263,7 +263,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
     #     eb_current_fit = list(mu1 = rep(1, length(self$Y)), mu2 = rep(1, length(self$Y)), KL_div = 0)
     #   }
     #   
-    #   node_clone = VEBBoostNodeComp$new(self$name, fitFunction = self$fitFunction, predFunction = self$predFunction, currentFit = self$currentFit)
+    #   node_clone = VEBBoostNode$new(self$name, fitFunction = self$fitFunction, predFunction = self$predFunction, currentFit = self$currentFit)
     #   node_clone$X = self$X
     #   node_clone$Y = self$Y
     #   node_clone$sigma2 = self$sigma2
@@ -275,7 +275,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
     #     predFn = self$predFunction
     #   }
     #   
-    #   eb_node = VEBBoostNodeComp$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = eb_current_fit)
+    #   eb_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = eb_current_fit)
     #   eb_learner = node_clone$AddSiblingVEB(eb_node, self$ebCombineOperator, "eb_combine")
     #   eb_learner$convergeFit(tol)
     #   
@@ -290,7 +290,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
     #       self$currentFit = eb_learner[[self$name]]$currentFit
     #       ebCombineOperator = self$ebCombineOperator
     #       self$ebCombineOperator = "."
-    #       new_node = VEBBoostNodeComp$new(learner_name, fitFunction = eb_node$fitFunction, predFunction = eb_node$predFunction, currentFit = eb_node$currentFit, ebCombineOperator = ".")
+    #       new_node = VEBBoostNode$new(learner_name, fitFunction = eb_node$fitFunction, predFunction = eb_node$predFunction, currentFit = eb_node$currentFit, ebCombineOperator = ".")
     #       self$AddSiblingVEB(new_node, ebCombineOperator, combine_name)
     #       self$updateMoments()
     #     }
@@ -298,7 +298,7 @@ VEBBoostNodeComp2 <- R6::R6Class(
     #     ebCombineOperator = self$ebCombineOperator
     #     self$ebCombineOperator = "+"
     #     self$currentFit = eb_learner[[self$name]]$currentFit
-    #     new_node = VEBBoostNodeComp$new(learner_name, fitFunction = eb_node$fitFunction, predFunction = eb_node$predFunction, currentFit = eb_node$currentFit)
+    #     new_node = VEBBoostNode$new(learner_name, fitFunction = eb_node$fitFunction, predFunction = eb_node$predFunction, currentFit = eb_node$currentFit)
     #     self$AddSiblingVEB(new_node, ebCombineOperator, combine_name)
     #     self$updateMoments()
     #   }

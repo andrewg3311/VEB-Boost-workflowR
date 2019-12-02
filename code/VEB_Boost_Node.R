@@ -25,6 +25,8 @@ VEBBoostNode <- R6::R6Class(
     
     nextNumber = 1,
     
+    alpha = 0, # ONLY to be used w/ multi-class classification
+    
     AddChildVEB = function(name, check = c("check", "no-warn", "no-check"), ...) { # add VEB node as child
       child = VEBBoostNodeComp2$new(as.character(name), check, ...)
       invisible(self$AddChildNode(child))
@@ -601,7 +603,7 @@ VEBBoostNode <- R6::R6Class(
       if (!missing(value)) {
         stop("`$xi` cannot be modified directly", call. = FALSE)
       }
-      return(sqrt(self$root$mu2))
+      return(sqrt(self$root$mu2 + alpha^2 - 2*alpha*self$root$mu1))
     }, 
     
     isLocked = function(value) { # locked <=> V < V_tol, or both learners directly connected (sibling and parent's sibling) are constant

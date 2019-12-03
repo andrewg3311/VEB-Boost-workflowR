@@ -635,7 +635,11 @@ VEBBoostNode <- R6::R6Class(
       if (!missing(value)) {
         stop("`$xi` cannot be modified directly", call. = FALSE)
       }
-      return(sqrt(self$root$mu2 + self$alpha^2 - 2*self$alpha*self$root$mu1))
+      xi = sqrt(self$root$mu2 + self$alpha^2 - 2*self$alpha*self$root$mu1)
+      if (length(xi) == 1) {
+        xi = rep(xi, length(self$Y))
+      }
+      return(xi)
     }, 
     
     d = function(value) { # d == 1/xi * (g(xi) - .5), n x K matrix

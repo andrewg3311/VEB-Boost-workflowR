@@ -23,12 +23,8 @@ VEBBoostNode <- R6::R6Class(
     
     ebCombineOperator = "+", # operator used to split current node. tries "+", then "*", then "." for locked
     
-    nextNumber = 1,
-    
-    alpha = 0, # ONLY to be used w/ multi-class classification
-    
     AddChildVEB = function(name, check = c("check", "no-warn", "no-check"), ...) { # add VEB node as child
-      child = VEBBoostNodeComp2$new(as.character(name), check, ...)
+      child = VEBBoost$new(as.character(name), check, ...)
       invisible(self$AddChildNode(child))
     },
     
@@ -87,7 +83,7 @@ VEBBoostNode <- R6::R6Class(
     #   invisible(self)
     # }, 
     
-    convergeFit = function(tol = 1e-3, update_sigma2 = FALSE, update_ELBO_progress = FALSE, verbose = TRUE) {
+    convergeFit = function(tol = 1e-3, update_sigma2 = FALSE, update_ELBO_progress = TRUE, verbose = TRUE) {
       ELBOs = numeric(1000)
       ELBOs[1] = -Inf
       ELBOs[2] = self$root$ELBO
@@ -225,21 +221,15 @@ VEBBoostNode <- R6::R6Class(
       for (learner in base_learners) {
         fitFn = learner$fitFunction
         predFn = learner$predFunction
-        learner_name = paste("mu_", learner$root$nextNumber, sep = '')
-        combine_name = paste("combine_", learner$root$nextNumber, sep = '')
-        try({ # weird error, try to fix later, but still works
-          learner$root$nextNumber = learner$root$nextNumber + 1
-        }, silent = T)
+        learner_name = paste("mu_", learner$root$leafCount, sep = '')
+        combine_name = paste("combine_", learner$root$leafCount, sep = '')
         
         add_fit = list(mu1 = rep(0, length(learner$Y)), mu2 = rep(0, length(learner$Y)), KL_div = 0)
         add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = add_fit)
         learner$AddSiblingVEB(add_node, "+", combine_name)
         
-        learner_name = paste("mu_", learner$root$nextNumber, sep = '')
-        combine_name = paste("combine_", learner$root$nextNumber, sep = '')
-        try({ # weird error, try to fix later, but still works
-          learner$root$nextNumber = learner$root$nextNumber + 1
-        }, silent = T)
+        learner_name = paste("mu_", learner$root$leafCount, sep = '')
+        combine_name = paste("combine_", learner$root$leafCount, sep = '')
         
         mult_fit = list(mu1 = rep(1, length(learner$Y)), mu2 = rep(1, length(learner$Y)), KL_div = 0)
         mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = mult_fit)
@@ -321,12 +311,9 @@ VEBBoostNode <- R6::R6Class(
     #   
     #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$ebCombineOperator != "."))
     #   for (learner in base_learners) {
-    #     learner_name = paste("mu_", learner$root$nextNumber, sep = '')
-    #     combine_name = paste("combine_", learner$root$nextNumber, sep = '')
+    #     learner_name = paste("mu_", learner$root$leafCount, sep = '')
+    #     combine_name = paste("combine_", learner$root$leafCount, sep = '')
     #     learner$addLearnerEB(learner_name, combine_name)
-    #     try({ # weird error, try to fix later, but still works
-    #       learner$root$nextNumber = learner$root$nextNumber + 1
-    #     }, silent = T)
     #     
     #     ELBOs = numeric(1000)
     #     ELBOs[1] = -Inf
@@ -370,12 +357,9 @@ VEBBoostNode <- R6::R6Class(
     #   
     #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$ebCombineOperator != "."))
     #   for (learner in base_learners) { # add to all nodes
-    #     learner_name = paste("mu_", learner$root$nextNumber, sep = '')
-    #     combine_name = paste("combine_", learner$root$nextNumber, sep = '')
+    #     learner_name = paste("mu_", learner$root$leafCount, sep = '')
+    #     combine_name = paste("combine_", learner$root$leafCount, sep = '')
     #     learner$addLearnerEB(learner_name, combine_name)
-    #     try({ # weird error, try to fix later, but still works
-    #       learner$root$nextNumber = learner$root$nextNumber + 1
-    #     }, silent = T)
     #   }
     #   
     #   # update fit
@@ -436,10 +420,48 @@ VEBBoostNode <- R6::R6Class(
     .ELBO_progress = list(-Inf), # list of ELBOs for each iteration of growing and fitting the tree
     .pred_mu1 = NULL, # prediction based on predFunction and given new data (first moment)
     .pred_mu2 = NULL, # prediction based on predFunction and given new data (second moment)
-    .isLocked = FALSE # locked <=> V < V_tol, or both learners directly connected (sibling and parent's sibling) are constant
+    .isLocked = FALSE, # locked <=> V < V_tol, or both learners directly connected (sibling and parent's sibling) are constant
+    .ensemble = NULL, # only really used in mult-class case, otherwise will refer to root
+    .alpha = 0 # used in multi-class learner
   ), 
   
   active = list(
+    
+    # ensemble refers to what this tree is a part of.
+    # e.g. in a linear or logistic learner, ensemble is just the root
+    # in a multi-class learner, ensemble is the container for all of the fits for all classes
+    # doing it this way allows us to be more memory efficient (e.g. store X just once, not in each learner for each class)
+    ensemble = function(value) {
+      if (missing(value)) {
+        if (self$isRoot) {
+          if (is.null(private$.ensemble)) {
+            return(invisible(self))
+          } else {
+            return(invisible(private$.ensemble))
+          }
+        } else {
+          return(invisible(self$root$ensemble))
+        }
+      }
+      
+      if (!self$isRoot) {
+        stop("`$ensemble' cannot be modified except at the root", call. = FALSE)
+      } else {
+        private$.ensemble = value
+      }
+    }, 
+    
+    isEnsemble = function(value) { # TRUE if is ensemble (root AND not part of higher ensemble), else FALSE
+      if (!missing(value)) {
+        stop("`$isEnsemble' cannot be modified directly", call. = FALSE)
+      }
+      if (self$isRoot) {
+        if (is.null(private$.ensemble)) {
+          return(TRUE)
+        }
+      }
+      return(FALSE)
+    }, 
     
     mu1 = function(value) {
       if (!missing(value)) {
@@ -476,6 +498,13 @@ VEBBoostNode <- R6::R6Class(
     
     X = function(value) { # predictor for node
       if (missing(value)) {
+        if (self$isRoot) {
+          if (self$isEnsemble) {
+            return(private$.X)
+          } else {
+            return(self$ensemble$X)
+          }
+        }
         if (is.null(private$.X)) {
           return(self$parent$X)
         } else {
@@ -491,10 +520,8 @@ VEBBoostNode <- R6::R6Class(
           if (self$root$family == "gaussian") {
             return(private$.Y)
           } else if (self$root$family == "binomial") {
-            g_xi = g(self$root$xi) # vector of g(xi_i), pre-compute once
-            d = ((g_xi - .5) / self$root$xi) # vector of (g(xi_i) - .5) / xi_i, pre-compute once
-            d[self$root$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
-            return((private$.Y - .5) / d)
+            d = self$root$d
+            return((private$.Y - .5 + (self$alpha * d)) / d) # alpha*d needed for multi-class case
           } else {
             stop("family must be either 'gaussian' or 'binomial")
           }
@@ -531,10 +558,7 @@ VEBBoostNode <- R6::R6Class(
           if (self$root$family == "gaussian") {
             return(private$.sigma2)
           } else if (self$root$family == "binomial") {
-            g_xi = g(self$root$xi) # vector of g(xi_i), pre-compute once
-            d = ((g_xi - .5) / self$root$xi) # vector of (g(xi_i) - .5) / xi_i, pre-compute once
-            d[self$root$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
-            return(1 / d)
+            return(1 / self$root$d)
           } else {
             stop("family must be either 'gaussian' or 'binomial")
           }
@@ -587,11 +611,9 @@ VEBBoostNode <- R6::R6Class(
             self$KL_div
         )
       } else if (self$root$family == "binomial") {
-        g_xi = g(self$root$xi) # vector of g(xi_i), pre-compute once
-        d = ((g_xi - .5) / self$root$xi) # vector of (g(xi_i) - .5) / xi_i, pre-compute once
-        d[self$root$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
+        d = self$root$d
         return(
-          sum(log(g_xi)) + sum((self$root$xi / 2)*(d*self$root$xi - 1)) + sum((self$root$raw_Y - .5) * self$root$mu1) - 
+          sum(log(g(self$xi))) + sum((self$root$xi / 2)*(d*self$root$xi - 1)) + sum((self$root$raw_Y - .5) * self$root$mu1) - 
             .5*sum(self$root$mu2 * d) - self$KL_div
         )
       } else {
@@ -599,11 +621,31 @@ VEBBoostNode <- R6::R6Class(
       }
     }, 
     
+    alpha = function(value) { # used in multi-class learner
+      if (!missing(value)) {
+        stop("`$alpha' cannot be modified directly except at the ensemble level", call. = FALSE)
+      }
+      if (self$isEnsemble) { # if isEnsemble, e.g. if we're in linear or logistic case, return root$.alpha (SHOULD BE 0 IN THIS CASE)
+        return(private$.alpha)
+      }
+      return(self$ensemble$alpha) # otherwise, return ensemble's alpha
+    }, 
+    
     xi = function(value) { # optimal variational parameters, set to +sqrt(mu2)
       if (!missing(value)) {
         stop("`$xi` cannot be modified directly", call. = FALSE)
       }
-      return(sqrt(self$root$mu2 + alpha^2 - 2*alpha*self$root$mu1))
+      return(sqrt(self$root$mu2 + self$alpha^2 - 2*self$alpha*self$root$mu1))
+    }, 
+    
+    d = function(value) { # d == 1/xi * (g(xi) - .5), n x K matrix
+      if (!missing(value)) {
+        stop("'$d' cannot be modified directly", call. = FALSE)
+      }
+      g_xi = g(self$xi) # matrix of g(xi_i,k), pre-compute once
+      d = ((g_xi - .5) / self$xi) # matrix of (g(xi_i,k) - .5) / xi_i,k, pre-compute once
+      d[self$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
+      return(d)
     }, 
     
     isLocked = function(value) { # locked <=> V < V_tol, or both learners directly connected (sibling and parent's sibling) are constant

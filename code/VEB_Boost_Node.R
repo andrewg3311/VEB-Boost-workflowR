@@ -468,10 +468,14 @@ VEBBoostNode <- R6::R6Class(
         stop("`$mu1` cannot be modified directly", call. = FALSE)
       }
       if (self$isLeaf) {
-        return(self$currentFit$mu1)
+        mu1 = self$currentFit$mu1
       } else {
-        return(private$.mu1)
+        mu1 = private$.mu1
       }
+      if (length(mu1) == 1) {
+        mu1 = rep(mu1, length(self$root$raw_Y))
+      }
+      return(mu1)
     },
     
     mu2 = function(value) {
@@ -479,10 +483,14 @@ VEBBoostNode <- R6::R6Class(
         stop("`$mu2` cannot be modified directly", call. = FALSE)
       }
       if (self$isLeaf) {
-        return(self$currentFit$mu2)
+        mu2 = self$currentFit$mu2
       } else {
-        return(private$.mu2)
+        mu2 = private$.mu2
       }
+      if (length(mu2) == 1) {
+        mu2 = rep(mu2, length(self$root$raw_Y))
+      }
+      return(mu2)
     }, 
     
     KL_div = function(value) { # KL divergence from q to g of learner defined by sub-tree with this node as the root
@@ -612,8 +620,9 @@ VEBBoostNode <- R6::R6Class(
         )
       } else if (self$root$family == "binomial") {
         d = self$root$d
+        xi = self$root$xi
         return(
-          sum(log(g(self$xi))) + sum((self$root$xi / 2)*(d*self$root$xi - 1)) + sum((self$root$raw_Y - .5) * self$root$mu1) - 
+          sum(log(g(xi))) + sum((xi / 2)*(d*xi - 1)) + sum((self$root$raw_Y - .5) * self$root$mu1) - 
             .5*sum(self$root$mu2 * d) - self$KL_div
         )
       } else {
@@ -635,20 +644,17 @@ VEBBoostNode <- R6::R6Class(
       if (!missing(value)) {
         stop("`$xi` cannot be modified directly", call. = FALSE)
       }
-      xi = sqrt(self$root$mu2 + self$alpha^2 - 2*self$alpha*self$root$mu1)
-      if (length(xi) == 1) {
-        xi = rep(xi, length(self$Y))
-      }
-      return(xi)
+      return(sqrt(self$root$mu2 + self$alpha^2 - 2*self$alpha*self$root$mu1))
     }, 
     
     d = function(value) { # d == 1/xi * (g(xi) - .5), n x K matrix
       if (!missing(value)) {
         stop("'$d' cannot be modified directly", call. = FALSE)
       }
-      g_xi = g(self$xi) # matrix of g(xi_i,k), pre-compute once
-      d = ((g_xi - .5) / self$xi) # matrix of (g(xi_i,k) - .5) / xi_i,k, pre-compute once
-      d[self$xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
+      xi = self$xi
+      g_xi = g(xi) # matrix of g(xi_i,k), pre-compute once
+      d = ((g_xi - .5) / xi) # matrix of (g(xi_i,k) - .5) / xi_i,k, pre-compute once
+      d[xi == 0] = .25 # case of 0/0 (e.g. x_i is all 0), use L'Hopital
       return(d)
     }, 
     

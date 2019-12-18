@@ -24,7 +24,7 @@ VEBBoostNode <- R6::R6Class(
     ebCombineOperator = "+", # operator used to split current node. tries "+", then "*", then "." for locked
     
     AddChildVEB = function(name, check = c("check", "no-warn", "no-check"), ...) { # add VEB node as child
-      child = VEBBoost$new(as.character(name), check, ...)
+      child = VEBBoostNode$new(as.character(name), check, ...)
       invisible(self$AddChildNode(child))
     },
     
@@ -421,7 +421,7 @@ VEBBoostNode <- R6::R6Class(
     .pred_mu1 = NULL, # prediction based on predFunction and given new data (first moment)
     .pred_mu2 = NULL, # prediction based on predFunction and given new data (second moment)
     .isLocked = FALSE, # locked <=> V < V_tol, or both learners directly connected (sibling and parent's sibling) are constant
-    .ensemble = NULL, # only really used in mult-class case, otherwise will refer to root
+    #.ensemble = NULL, # only really used in mult-class case, otherwise will refer to root
     .alpha = 0 # used in multi-class learner
   ), 
   
@@ -431,37 +431,68 @@ VEBBoostNode <- R6::R6Class(
     # e.g. in a linear or logistic learner, ensemble is just the root
     # in a multi-class learner, ensemble is the container for all of the fits for all classes
     # doing it this way allows us to be more memory efficient (e.g. store X just once, not in each learner for each class)
+    # ensemble = function(value) {
+    #   if (missing(value)) {
+    #     if (self$isRoot) {
+    #       if (is.null(private$.ensemble)) {
+    #         return(invisible(self))
+    #       } else {
+    #         return(invisible(private$.ensemble))
+    #       }
+    #     } else {
+    #       return(invisible(self$root$ensemble))
+    #     }
+    #   }
+    #   
+    #   if (!self$isRoot) {
+    #     stop("`$ensemble' cannot be modified except at the root", call. = FALSE)
+    #   } else {
+    #     private$.ensemble = value
+    #   }
+    # }, 
     ensemble = function(value) {
       if (missing(value)) {
         if (self$isRoot) {
-          if (is.null(private$.ensemble)) {
+          if (identical(parent.env(self), emptyenv())) {
             return(invisible(self))
           } else {
-            return(invisible(private$.ensemble))
+            return(invisible(parent.env(self)))
           }
         } else {
           return(invisible(self$root$ensemble))
         }
       }
-      
+
       if (!self$isRoot) {
         stop("`$ensemble' cannot be modified except at the root", call. = FALSE)
       } else {
-        private$.ensemble = value
+        parent.env(self) = value
       }
-    }, 
-    
+    },
+    # 
+    # isEnsemble = function(value) { # TRUE if is ensemble (root AND not part of higher ensemble), else FALSE
+    #   if (!missing(value)) {
+    #     stop("`$isEnsemble' cannot be modified directly", call. = FALSE)
+    #   }
+    #   if (self$isRoot) {
+    #     if (is.null(private$.ensemble)) {
+    #       return(TRUE)
+    #     }
+    #   }
+    #   return(FALSE)
+    # }, 
+    # 
     isEnsemble = function(value) { # TRUE if is ensemble (root AND not part of higher ensemble), else FALSE
       if (!missing(value)) {
         stop("`$isEnsemble' cannot be modified directly", call. = FALSE)
       }
       if (self$isRoot) {
-        if (is.null(private$.ensemble)) {
+        if (identical(parent.env(self), emptyenv())) {
           return(TRUE)
         }
       }
       return(FALSE)
-    }, 
+    },
     
     mu1 = function(value) {
       if (!missing(value)) {

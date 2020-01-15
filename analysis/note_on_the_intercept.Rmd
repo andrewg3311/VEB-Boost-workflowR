@@ -1,0 +1,28 @@
+---
+title: "A Note on the Intercept"
+author: "Andrew Goldstein"
+date: "January 15, 2020"
+output:
+  workflowr::wflow_html:
+    code_folding: show
+---
+
+
+In SuSiE, varbvs, etc, the intercept is fit by first centering $X$ and $Y$ and then fitting the model. It can be shown that this is equivalent to putting a flat independent prior on the intercept. When we integrate out the intercept from the likelihood, we get something proportional to the likelihood of the centered versions of $X$ and $Y$ with no intercept included, so our lower-bound for the likelihood in the variational approximation still holds. In the weighted version, we can achieve the same result, but change our centering operation to a "weighted" centering operation (e.g. remove the weighted column means of $X$ from $X$ and the weighted mean of $Y$ from $Y$, where the weights are proportional to $\frac{1}{\sigma_i^2}$, proof omitted). The posterior mean of the intercept is $\tilde{Y} - \tilde{X} \bar{\beta}$, where $\tilde{Y}, \tilde{X}$ are the centered versions of $Y$ and $X$, and $\bar{\beta}$ is the posterior mean of our effect vector under our variational distribution.
+
+In the SuSiE model, One would think that instead of centering once at the beginning, we could re-center each time we update a single effect, in a way "spreading out" our intercept across our $L$ single effects. However, this is not the case. As a result, doing so makes the algorithm not always increasing in the ELBO (at least when the intercept is fit as a constant). This presents an issue for VEB-Boost, since the multiplication makes it unclear how to properly fit an intercept.
+
+To fix the issue, I put an explicit prior on the intercept, so the weighted regression model is now as follows:
+$$
+\begin{aligned}
+Y = \mu + X\beta + E \\
+\beta \sim g(\cdot) \in \mathcal{G} \\
+\mu|\beta \equiv c - \tilde{X}\beta, \quad c \in \mathbb{R}\\
+E \sim \mathcal{N}(0, diag(\vec{\sigma^2}))
+\end{aligned}
+$$
+i.e. given our effect vector $\beta$, our intercept $\mu$ is a point-mass on $c - \tilde{X}\beta$. We can perform an EB procedure and first maximize the likelihood w.r.t. the parameter $c$, which we can show is optimized when $c = \tilde{Y}$.
+
+The end result is that we can still perform our weighted centering of $X$ and $Y$, however we not have to treat the intercept as random, and thus is variable (depending on $\beta$).
+
+An alternative is to have a parameter for the intercept and maximize the ELBO w.r.t. that parameter as well. This can be achieved by first removing the old value of the intercept from $Y$, fitting our SER, and then set the new value of the intercept to $\tilde{Y} - \tilde{X} \bar{\beta}$. However, I prefer the first method. By allowing the intercept to be not constant, we introduce shrinkage (towards the weighted average of $Y$), which I have observed provides a benefit to model prediction performance, as well as model fitting time (by introducing some "wiggle room" into the predictions from a base learner, it is easier to fit other learners).

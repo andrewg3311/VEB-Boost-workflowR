@@ -1,0 +1,48 @@
+---
+title: "Weighted SER Derivation"
+author: "Andrew Goldstein"
+date: "Jaanuary 15, 2020"
+output:
+  workflowr::wflow_html:
+    code_folding: show
+---
+
+
+# Introduction
+This page offers a quick derivation of the CAVI updates for the weighted version of the single effect regression (SER).
+
+# Formal Model
+The formal weighted SER model (without an intercept) is as follows:
+$$
+\begin{aligned}
+Y = X\beta + E \\
+\beta = b\gamma \\
+\gamma \sim Multi(1, \pi) \\
+b \sim \mathcal{N}(0, \sigma_0^2) \\
+E \sim \mathcal{N}(0, diag(\vec{\sigma^2}))
+\end{aligned}
+$$
+Here, $Y \in \mathbb{R}^n$ and $X \in \mathbb{R}^{n \times p}$.
+
+# Derivation
+As outlines in the [VEB Boost Derivation](VEB_Boost_Derivation.html), 
+$$
+\begin{aligned}
+q(\mu = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(Y|\mu = \mathbf{c}\Big)\Bigg\} = \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) + \frac{1}{\sigma_i^2}\Big(Y_i - \mathbf{c}_i\Big)^2\Bigg\} \propto \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(\mathbf{c}_i^2 - 2\mathbf{c}_iY_i\Big)\Bigg\}
+\end{aligned}
+$$
+Applying this to the SER case, we get (where $\vec{e_j}$ is the jth standard unit vector, $\tilde{X}$ is the matrix $X$ whose rows are scaled by $\sigma_i$ i.e. $\frac{X_{i\cdot}}{\sigma_i}$, and $\tilde{Y}$ is the vector $Y$ divided by $\sigma_i$ i.e. $\frac{Y_i}{\sigma_i}$):
+$$
+\begin{aligned}
+q(\beta = c \cdot \vec{e_j}) \propto \exp\Bigg\{\log\Big(\pi_j \cdot \frac{1}{\sqrt{2\pi\sigma_0^2}}\exp\{-\frac{1}{2\sigma_0^2}c^2\}\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(c^2X_{ij}^2 - 2cX_{ij}Y_i\Big)\Bigg\} \propto \\
+\exp\Bigg\{\log(\pi_j) - \frac{1}{2\sigma_0^2}c^2 - \frac{1}{2}c^2\|\tilde{X_{\cdot j}}\|^2 + c\langle\tilde{X_{\cdot j}}, \tilde{Y}\rangle\Bigg\} \propto \\
+\exp\Bigg\{\log(\pi_j) - c^2\frac{1}{2}\Big(\frac{1}{\sigma_0^2} + \|\tilde{X_{\cdot j}}\|^2\Big) + c\langle\tilde{X_{\cdot j}}, \tilde{Y}\rangle\Bigg\} = [\tau_j := \frac{1}{\sigma_0^2} + \|\tilde{X_{\cdot j}}\|^2, \quad 
+\nu_j := \langle\tilde{X_{\cdot j}}, \tilde{Y}\rangle] \\
+\exp\Bigg\{\log(\pi_j) - \frac{\tau_j}{2}\Big[\Big(c - \frac{\nu_j}{\tau_j}\Big)^2 - \frac{\nu_j^2}{\tau_j^2}\Big] \pm \frac{1}{2}\log(\frac{1}{\tau_j})\Bigg\} \propto \\
+\pi_j \cdot \sqrt{\frac{1}{\tau_j}} \cdot \exp\Big\{\frac{1}{2} \frac{\nu_j^2}{\tau_j}\Big\} \cdot \frac{1}{\sqrt{2\pi / \tau_j}}\exp\Big\{-\frac{\tau_j}{2} (c - \frac{\nu_j}{\tau_j})^2\Big\}
+\end{aligned}
+$$
+
+So our PIPs $\alpha_j \propto \pi_j \cdot \sqrt{\frac{1}{\tau_j}} \cdot \exp\Big\{\frac{1}{2} \frac{\nu_j^2}{\tau_j}\Big\}$, our posterior means are $\mu_j = \frac{\nu_j}{\tau_j}$, and our posterior variances are $\sigma_j^2 = \frac{1}{\tau_j}$.

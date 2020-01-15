@@ -1,7 +1,7 @@
 ---
 title: "Weighted SER Derivation"
 author: "Andrew Goldstein"
-date: "Jaanuary 15, 2020"
+date: "January 15, 2020"
 output:
   workflowr::wflow_html:
     code_folding: show

@@ -12,7 +12,7 @@ For the main page detailing VEB-Boost, see [here](VEB_Boost_Derivation.html).
 
 For a quick derivation of the weighted SER updates, see [here](weighted_SER_Derivation.html).
 
-For a quick note on fitting an intercept, see [here](note_on_the_intercept/html).
+For a quick note on fitting an intercept, see [here](note_on_the_intercept.html).
 
 For a description of how we grow the VEB-Boost tree, see [here](Growing_VEB_Boost_Tree.html).
 

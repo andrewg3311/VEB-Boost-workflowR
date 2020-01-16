@@ -410,7 +410,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-01-15
+<strong>Last updated:</strong> 2020-01-16
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -441,10 +441,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree4a1b0fe7190b6ac77f7756c9895135f39d9dc27ftargetblank4a1b0fea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/4a1b0fe7190b6ac77f7756c9895135f39d9dc27f" target="_blank">4a1b0fe</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree074bd4c94dc9499b52790feef32290cfaf7f21a7targetblank074bd4ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/074bd4c94dc9499b52790feef32290cfaf7f21a7" target="_blank">074bd4c</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree4a1b0fe7190b6ac77f7756c9895135f39d9dc27ftargetblank4a1b0fea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree074bd4c94dc9499b52790feef32290cfaf7f21a7targetblank074bd4ca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -470,7 +470,6 @@ Untracked files:
 
 Unstaged changes:
     Modified:   analysis/Growing_VEB_Boost_Tree.Rmd
-    Modified:   analysis/index.Rmd
     Modified:   code/Scratch/learner_MNIST.R
     Modified:   code/Scratch/stumps_fit_functions_w_SuSiE_code.R
     Modified:   code/VEB_Boost_MultiClass_Learner.R
@@ -520,6 +519,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/074bd4c94dc9499b52790feef32290cfaf7f21a7/analysis/note_on_the_intercept.Rmd" target="_blank">074bd4c</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2020-01-16
+</td>
+<td>
+Adding a line on putting an independent Gaussian prior on the intercept
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/28d324e6808a47ed8351ad5c233c1833b6e14583/docs/note_on_the_intercept.html" target="_blank">28d324e</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2020-01-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/andrewg3311/VEB-Boost/blob/4a1b0fe7190b6ac77f7756c9895135f39d9dc27f/analysis/note_on_the_intercept.Rmd" target="_blank">4a1b0fe</a>
 </td>
 <td>
@@ -551,6 +584,7 @@ E \sim \mathcal{N}(0, diag(\vec{\sigma^2}))
 \]</span> i.e. given our effect vector <span class="math inline">\(\beta\)</span>, our intercept <span class="math inline">\(\mu\)</span> is a point-mass on <span class="math inline">\(c - \tilde{X}\beta\)</span>. We can perform an EB procedure and first maximize the likelihood w.r.t. the parameter <span class="math inline">\(c\)</span>, which we can show is optimized when <span class="math inline">\(c = \tilde{Y}\)</span>.</p>
 <p>The end result is that we can still perform our weighted centering of <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, however we not have to treat the intercept as random, and thus is variable (depending on <span class="math inline">\(\beta\)</span>).</p>
 <p>An alternative is to have a parameter for the intercept and maximize the ELBO w.r.t. that parameter as well. This can be achieved by first removing the old value of the intercept from <span class="math inline">\(Y\)</span>, fitting our SER, and then set the new value of the intercept to <span class="math inline">\(\tilde{Y} - \tilde{X} \bar{\beta}\)</span>. However, I prefer the first method. By allowing the intercept to be not constant, we introduce shrinkage (towards the weighted average of <span class="math inline">\(Y\)</span>), which I have observed provides a benefit to model prediction performance, as well as model fitting time (by introducing some “wiggle room” into the predictions from a base learner, it is easier to fit other learners).</p>
+<p>Another alternative is to put an independent Gaussian prior on the intercept and include that in our variational approximation (we could even learn the variance using our EB procedure). The appeal here is that when we change a base learner from being fit with an SER to being fit with a constant function, we would still be able to allow variability in the constant value. I haven’t explored this option much, but the effects seem to be minimal.</p>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using

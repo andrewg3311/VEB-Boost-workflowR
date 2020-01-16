@@ -46,3 +46,18 @@ q(\beta = c \cdot \vec{e_j}) \propto \exp\Bigg\{\log\Big(\pi_j \cdot \frac{1}{\s
 $$
 
 So our PIPs $\alpha_j \propto \pi_j \cdot \sqrt{\frac{1}{\tau_j}} \cdot \exp\Big\{\frac{1}{2} \frac{\nu_j^2}{\tau_j}\Big\}$, our posterior means are $\mu_j = \frac{\nu_j}{\tau_j}$, and our posterior variances are $\sigma_j^2 = \frac{1}{\tau_j}$.
+
+# EB Step for Finding $\sigma_0^2$
+Just as in SuSiE, we can use empirical Bayes to estimate the prior variance, $\sigma_0^2$. This is especially useful in our case, since it can inform us a to when we should stop adding more base learners in a certain part of the tree.
+
+The derivation of the log-likelihood of $Y$ as a function of $\sigma_0^2$ is below:
+$$
+\begin{aligned}
+P(Y|X, \sigma_0^2, \vec{\sigma^2}, \pi) = \sum_{k=1}^p \pi_j \int P(Y|X_j, b, \sigma_0^2, \vec{\sigma^2}) P(b|\sigma_0^2) db \\
+\int P(Y|X_j, b, \sigma_0^2, \vec{\sigma^2}) P(b|\sigma_0^2) db = \int \prod_{i=1}^n (2\pi\sigma_i^2)^{-1/2} \cdot \exp\Big\{-\frac{1}{2}(Y - bX_j)^T diag (\vec{\frac{1}{\sigma^2}}) (Y - bX_j)\Big\} \cdot \frac{1}{\sqrt{2\pi\sigma_0^2}} \exp\Big\{-\frac{1}{2\sigma_0^2}b^2\Big\} db = \\
+[\tilde{Y} := Y \circ \frac{1}{\vec{\sigma}}, \quad \tilde{X_j} := X_j \circ \frac{1}{\vec{\sigma}}] = \\
+\Bigg[\prod_{i=1}^n \sigma_i\Bigg] \cdot \int P(\tilde{Y}|\tilde{X_j}, b, \sigma_0^2, \vec{\sigma^2} = \vec{1}) P(b|\sigma_0^2) db \\
+\therefore \log\Big(P(Y|X, \sigma_0^2, \vec{\sigma^2}, \pi)\Big) = const + \log\Big(\sum_{k=1}^p \pi_j \int P(\tilde{Y}|\tilde{X_j}, b, \sigma_0^2, \vec{\sigma^2} = \vec{1}) P(b|\sigma_0^2) db\Big)
+\end{aligned}
+$$
+So we can perform the same EB procedure as in the constant variance SER, after scaling $Y$ and the rows of $X$ by the given SDs, $\sqrt{\vec{\sigma^2}}$.

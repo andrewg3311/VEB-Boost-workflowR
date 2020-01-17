@@ -410,7 +410,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-01-15
+<strong>Last updated:</strong> 2020-01-16
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -501,10 +501,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree88a3e8b95442681480b5734aff4568436d76ea8ftargetblank88a3e8ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/88a3e8b95442681480b5734aff4568436d76ea8f" target="_blank">88a3e8b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree86db0167d78c8a36e1a90905e82ec949a16e019dtargetblank86db016a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/86db0167d78c8a36e1a90905e82ec949a16e019d" target="_blank">86db016</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree88a3e8b95442681480b5734aff4568436d76ea8ftargetblank88a3e8ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree86db0167d78c8a36e1a90905e82ec949a16e019dtargetblank86db016a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -512,6 +512,7 @@ Great! You are using Git for version control. Tracking code development and conn
 <pre><code>
 Ignored files:
     Ignored:    analysis/.Rhistory
+    Ignored:    docs/figure/
 
 Untracked files:
     Untracked:  analysis/Archive/
@@ -573,6 +574,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/86db0167d78c8a36e1a90905e82ec949a16e019d/analysis/VEB_Boost_Derivation.Rmd" target="_blank">86db016</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2020-01-17
+</td>
+<td>
+Adding note on importance of estimating residual variance/noise level
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/50eafa0dcf26e4fbc5d8b3d3685dff80d2c1d8a9/docs/VEB_Boost_Derivation.html" target="_blank">50eafa0</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2020-01-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1326,6 +1361,10 @@ F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=
 <p>After our coordinate ascent steps for <span class="math inline">\((q_l, g_l)\)</span>, we can take a coordinate ascent step fof <span class="math inline">\(\sigma^2\)</span>. We simply maximize the ELBO w.r.t. <span class="math inline">\(\sigma^2\)</span>, which from the above expression (after taking the partial derivative w.r.t. <span class="math inline">\(\sigma^2\)</span> and setting to 0) gives us <span class="math display">\[
 \widehat{\sigma^2} = \frac{1}{n}\Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]
 \]</span></p>
+<p>In this model, the importance of the noise level <span class="math inline">\(\sigma^2\)</span> is two-fold.</p>
+<p>First, when we are fitting a VEB-Boost tree to the data, in most cases we do not believe the tree is the “true” model and we expect to grow the tree after the current model converges. With a fixed value for <span class="math inline">\(\sigma^2\)</span> that is very small, the complexity of the VEB-Boost tree is unlikely to be able to fit the data as well as the small noise level would suggest, so the algorithm will take MANY iterations to converge. Instead, if we update <span class="math inline">\(\sigma^2\)</span> adaptively, then our poor fit with a smaller tree informs the algorithm that not much progress can be made, so we converge sooner.</p>
+<p>Second, and more importantly, <span class="math inline">\(\sigma^2\)</span> acts as a regularizer to the complexity of the VEB-Boost tree. With a small fixed value for <span class="math inline">\(\sigma^2\)</span>, we will likely grow a very large VEB-Boost tree in order to have our fitted posterior means be close to the data <span class="math inline">\(Y\)</span>, which will likely lead to over-fitting. On the other hand, with a large fixed value for <span class="math inline">\(\sigma^2\)</span>, our algorithm will be satisfied with a smaller tree that fits the data loosely, and we will under-fit our data.</p>
+<p>Thus, having a good way to estimate <span class="math inline">\(\sigma^2\)</span> is crucial to the method. So far, I have only used the above update in order to estimate <span class="math inline">\(\sigma^2\)</span>, however there is likely a better way to estimate <span class="math inline">\(\sigma^2\)</span>, e.g. putting a prior on it.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">

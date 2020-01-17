@@ -263,3 +263,11 @@ After our coordinate ascent steps for $(q_l, g_l)$, we can take a coordinate asc
 $$
 \widehat{\sigma^2} = \frac{1}{n}\Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]
 $$
+
+In this model, the importance of the noise level $\sigma^2$ is two-fold.
+
+First, when we are fitting a VEB-Boost tree to the data, in most cases we do not believe the tree is the "true" model and we expect to grow the tree after the current model converges. With a fixed value for $\sigma^2$ that is very small, the complexity of the VEB-Boost tree is unlikely to be able to fit the data as well as the small noise level would suggest, so the algorithm will take MANY iterations to converge. Instead, if we update $\sigma^2$ adaptively, then our poor fit with a smaller tree informs the algorithm that not much progress can be made, so we converge sooner.
+
+Second, and more importantly, $\sigma^2$ acts as a regularizer to the complexity of the VEB-Boost tree. With a small fixed value for $\sigma^2$, we will likely grow a very large VEB-Boost tree in order to have our fitted posterior means be close to the data $Y$, which will likely lead to over-fitting. On the other hand, with a large fixed value for $\sigma^2$, our algorithm will be satisfied with a smaller tree that fits the data loosely, and we will under-fit our data.
+
+Thus, having a good way to estimate $\sigma^2$ is crucial to the method. So far, I have only used the above update in order to estimate $\sigma^2$, however there is likely a better way to estimate $\sigma^2$, e.g. putting a prior on it.

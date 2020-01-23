@@ -23,7 +23,7 @@ $$
 \begin{aligned}
 Y = \mu + X\beta + E \\
 \beta \sim g(\cdot) \in \mathcal{G} \\
-\mu|\beta \equiv c - \tilde{X}\beta, \quad c \in \mathbb{R}\\
+\mu|\beta \sim \delta_{c - \tilde{X}\beta}, \quad c \in \mathbb{R}\\
 E \sim \mathcal{N}(0, diag(\vec{\sigma^2}))
 \end{aligned}
 $$

@@ -12,6 +12,12 @@ In SuSiE, varbvs, etc, the intercept is fit by first centering $X$ and $Y$ and t
 
 In the SuSiE model, One would think that instead of centering once at the beginning, we could re-center each time we update a single effect, in a way "spreading out" our intercept across our $L$ single effects. However, this is not the case. As a result, doing so makes the algorithm not always increasing in the ELBO (at least when the intercept is fit as a constant). This presents an issue for VEB-Boost, since the multiplication makes it unclear how to properly fit an intercept.
 
+The reason centering works when you do it once at the beginning is because the marginal likelihood of the data when including a flat Gaussian prior on the intercept is proportional to the marginal likelihood of the centered data without an intercept. So when we then lower bound the log-marginal likelihood, everything still works just fine. However, if we try to center after lower-bounding the log-marginal likelihood, the ELBO is of the form:
+$$
+E_Q[\log P(Y|\mu)] - D_{KL}(Q || P)
+$$
+The issue is that the distributions $Q$ and $P$ really include the distribution of the intercept. However, this is not reflected if we center the data and ignore the intercept. It is for this reason that centering after lower-bounding the log-marginal likelihood does not yield the desired effect of integrating out a flat prior on the intercept.
+
 To fix the issue, I put an explicit prior on the intercept, so the weighted regression model is now as follows:
 $$
 \begin{aligned}

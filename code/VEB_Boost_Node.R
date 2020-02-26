@@ -20,9 +20,7 @@ VEBBoostNode <- R6::R6Class(
     predFunction = NULL, # function to predict based on current fit
     
     family = "gaussian",
-    
-    ebCombineOperator = "+", # operator used to split current node. tries "+", then "*", then "." for locked
-    
+
     AddChildVEB = function(name, check = c("check", "no-warn", "no-check"), ...) { # add VEB node as child
       child = VEBBoostNode$new(as.character(name), check, ...)
       invisible(self$AddChildNode(child))
@@ -88,9 +86,21 @@ VEBBoostNode <- R6::R6Class(
       ELBOs[1] = -Inf
       ELBOs[2] = self$root$ELBO
       i = 2
+      post_order_traversal = Traverse(self$root, 'post-order')
+      rev_pre_order_traversal = rev(Traverse(self$root, 'pre-order'))
       while (abs(ELBOs[i] - ELBOs[i-1]) > tol) {
+        # if (i %% 2 == 0) {
+        #   sapply(post_order_traversal, function(x) x$updateFit())
+        # } else {
+        #   sapply(rev_pre_order_traversal, function(x) x$updateFit())
+        # }
         self$root$Do(function(x) try({x$updateFit()}, silent = T), traversal = 'post-order')
         # need the try to avoid error/bug in data.tree or R6, that random bug where is says trying to apply non-function
+        # sapply(post_order_traversal, function(x) x$updateFit())
+        # if (update_sigma2) {
+        #   self$root$update_sigma2()
+        # }
+        # sapply(rev_pre_order_traversal, function(x) x$updateFit())
         if (update_sigma2) {
           self$root$update_sigma2()
         }
@@ -135,59 +145,46 @@ VEBBoostNode <- R6::R6Class(
       
     }, 
     
-    # addLearner = function(learner_name, combine_name, fitFn = NULL, currentFit = NULL, predFn, tol = 1e-3) { # add a new learner to the tree
-    #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$KL_div > 0))
-    #   var_inf = sapply(base_learners, function(x) x$variance_influence) # vector of var inf values
-    #   #probs = var_inf / sum(var_inf)
-    #   node_to_split = base_learners[[which.max(var_inf)]] # note: if all additive, this will lead to an unbalanced tree (so calculating moments, etc not as efficient)
-    #   #node_to_split = base_learners[[sample.int(length(probs), size = 1, prob = probs)]] # randomly pick, weighted by influence
-    #   #base_elbos = sapply(base_learners, function(x) x$ELBO)
-    #   #node_to_split = base_learners[[which.min(base_elbos)]]
-    #   
-    #   node_clone = VEBBoostNode$new(node_to_split$name, fitFunction = node_to_split$fitFunction, currentFit = node_to_split$currentFit)
-    #   node_clone$X = node_to_split$X
-    #   node_clone$Y = node_to_split$Y
-    #   node_clone$sigma2 = node_to_split$sigma2
-    #   node_clone2 = node_clone$clone()
-    #   
-    #   if (is.null(fitFn)) {
-    #     fitFn = node_clone$fitFunction
-    #   }
-    #   if (is.null(predFn)) {
-    #     predFn = node_clone$predFunction
-    #   }
-    #   if (is.null(currentFit)) {
-    #     # currentFitAdd = list(mu1 = rep(0, length(node_clone$Y)), mu2 = rep(0, length(node_clone$Y)), KL_div = 1e-10)
-    #     # currentFitMult = list(mu1 = rep(1, length(node_clone$Y)), mu2 = rep(1, length(node_clone$Y)), KL_div = 1e-10)
-    #     currentFitAdd = node_clone$currentFit
-    #     currentFitMult = node_clone2$currentFit
-    #   } else {
-    #     currentFitAdd = currentFit
-    #     currentFitMult = currentFit
-    #   }
-    #   
-    #   # try adding nodes, see how we do
-    #   add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, currentFit = currentFitAdd)
-    #   add_learner = node_clone$AddSiblingVEB(add_node, "+", "add")
-    #   add_learner$convergeFit(tol)
-    #   
-    #   # now try multiplying nodes, see how we do
-    #   mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, currentFit = currentFitMult)
-    #   mult_learner = node_clone2$AddSiblingVEB(mult_node, "*", "mult")
-    #   mult_learner$convergeFit(tol)
-    #   
-    #   if (add_learner$ELBO >= mult_learner$ELBO) {
-    #     node_to_split$currentFit = add_learner[[node_to_split$name]]$currentFit
-    #     new_node = VEBBoostNode$new(learner_name, fitFunction = add_node$fitFunction, currentFit = add_node$currentFit)
-    #     node_to_split$AddSiblingVEB(new_node, "+", combine_name)
-    #   } else {
-    #     node_to_split$currentFit = mult_learner[[node_to_split$name]]$currentFit
-    #     new_node = VEBBoostNode$new(learner_name, fitFunction = mult_node$fitFunction, currentFit = mult_node$currentFit)
-    #     node_to_split$AddSiblingVEB(new_node, "*", combine_name)
-    #   }
-    #   
-    #   invisible(self$root)
-    # },
+    AddSiblingVEB2 = function(learner, operator = c("+", "*"), combine_name) { # function to add subtree as sibling to given node, combining with operator
+      # learner is tree to add to self
+      # operator is how to combine them
+      # name is what to call the combining node
+      
+      combine_node = VEBBoostNode$new(combine_name, operator = operator)
+      
+      if (self$isRoot) {
+        combine_node$X = self$X
+        combine_node$Y = self$Y
+        combine_node$sigma2 = self$sigma2
+        combine_node$ELBO_progress = tail(self$ELBO_progress, 1)[[1]]
+        #combine_node$alpha = self$alpha # NEED TO FIX
+        
+        self$X = NULL
+        self$Y = NULL
+        self$sigma2 = NULL
+        #self$alpha = NULL # NEED TO FIX
+        
+        combine_node$AddChildNode(self)
+        combine_node$AddChildNode(learner)
+      } else {
+        position = self$position
+        
+        p = self$parent
+        children_names = sapply(p$children, function(x) x$name)
+        p_children = lapply(children_names, function(x) p$RemoveChild(x))
+        
+        combine_node$AddChildNode(p_children[[position]])
+        combine_node$AddChildNode(learner)
+        
+        p$AddChildNode(p_children[[1]]$root)
+        p$AddChildNode(p_children[[2]]$root)
+      }
+      
+      combine_node$updateMoments()
+      
+      invisible(self$root) # return root, so we can assign entire tree to new value (in case we're splitting at root)
+      
+    }, 
     
     lockLearners = function(V_tol = 1e-3) { # lock learners that should be locked
       base_learners = Traverse(self$root, traversal = 'post-order', filterFun = function(x) x$isLeaf & !x$isLocked)
@@ -246,158 +243,38 @@ VEBBoostNode <- R6::R6Class(
       return(invisible(self$root))
     },
     
-    # addLearnerEB = function(learner_name, combine_name, fitFn = NULL, predFn = NULL, tol = 1e-3, V_tol = 1e-3) {
-    #   if (self$ebCombineOperator == ".") { # if node is "locked"
-    #     return(invisible(self))
-    #   } else if (self$ebCombineOperator == "+") {
-    #     eb_current_fit = list(mu1 = rep(0, length(self$Y)), mu2 = rep(0, length(self$Y)), KL_div = 0)
-    #   } else {
-    #     eb_current_fit = list(mu1 = rep(1, length(self$Y)), mu2 = rep(1, length(self$Y)), KL_div = 0)
-    #   }
-    #   
-    #   node_clone = VEBBoostNode$new(self$name, fitFunction = self$fitFunction, predFunction = self$predFunction, currentFit = self$currentFit)
-    #   node_clone$X = self$X
-    #   node_clone$Y = self$Y
-    #   node_clone$sigma2 = self$sigma2
-    #   
-    #   if (is.null(fitFn)) {
-    #     fitFn = self$fitFunction
-    #   }
-    #   if (is.null(predFn)) {
-    #     predFn = self$predFunction
-    #   }
-    #   
-    #   eb_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = eb_current_fit)
-    #   eb_learner = node_clone$AddSiblingVEB(eb_node, self$ebCombineOperator, "eb_combine")
-    #   eb_learner$convergeFit(tol)
-    #   
-    #   if (eb_learner$children[[2]]$currentFit$V < V_tol) { # if adding basically a constant
-    #     if (self$ebCombineOperator == "+") { # try multiplicative combine
-    #       self$ebCombineOperator = "*"
-    #       return(self$addLearnerEB(learner_name, combine_name, fitFn, predFn, tol, V_tol))
-    #     } else { # add multiplicative constant, "lock" node
-    #       eb_node$fitFunction = fitFnConstComp
-    #       eb_node$predFunction = predFnConstComp
-    #       eb_learner$convergeFit(tol)
-    #       self$currentFit = eb_learner[[self$name]]$currentFit
-    #       ebCombineOperator = self$ebCombineOperator
-    #       self$ebCombineOperator = "."
-    #       new_node = VEBBoostNode$new(learner_name, fitFunction = eb_node$fitFunction, predFunction = eb_node$predFunction, currentFit = eb_node$currentFit, ebCombineOperator = ".")
-    #       self$AddSiblingVEB(new_node, ebCombineOperator, combine_name)
-    #       self$updateMoments()
-    #     }
-    #   } else {
-    #     ebCombineOperator = self$ebCombineOperator
-    #     self$ebCombineOperator = "+"
-    #     self$currentFit = eb_learner[[self$name]]$currentFit
-    #     new_node = VEBBoostNode$new(learner_name, fitFunction = eb_node$fitFunction, predFunction = eb_node$predFunction, currentFit = eb_node$currentFit)
-    #     self$AddSiblingVEB(new_node, ebCombineOperator, combine_name)
-    #     self$updateMoments()
-    #   }
-    #   
-    #   invisible(self)
-    # }, 
-    # 
-    # convergeFitEB = function(tol = 1e-3, V_tol = 1e-3, update_sigma2 = FALSE, update_ELBO_progress = TRUE, verbose = TRUE) {
-    #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$ebCombineOperator != "."))
-    #   for (learner in base_learners) { # change any near-constant leaf to a constant and seal it off
-    #     if (learner$currentFit$V < V_tol) {
-    #       learner$fitFunction = fitFnConstComp
-    #       learner$predFunction = predFnConstComp
-    #       learner$ebCombineOperator = "."
-    #       learner$updateFit()
-    #     }
-    #   }
-    #   
-    #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$ebCombineOperator != "."))
-    #   for (learner in base_learners) {
-    #     learner_name = paste("mu_", learner$root$leafCount, sep = '')
-    #     combine_name = paste("combine_", learner$root$leafCount, sep = '')
-    #     learner$addLearnerEB(learner_name, combine_name)
-    #     
-    #     ELBOs = numeric(1000)
-    #     ELBOs[1] = -Inf
-    #     ELBOs[2] = self$root$ELBO
-    #     i = 2
-    #     while (abs(ELBOs[i] - ELBOs[i-1]) > tol) {
-    #       self$root$Do(function(x) x$updateFit(), filterFun = function(x) x$isLeaf)
-    #       if (update_sigma2) {
-    #         self$root$update_sigma2()
-    #       }
-    #       i = i + 1
-    #       if (i > length(ELBOs)) { # double size of ELBOs for efficiency rather than making it bigger each iteration
-    #         ELBOs = c(ELBOs, rep(0, i))
-    #       }
-    #       ELBOs[i] = self$root$ELBO
-    #       if (verbose & ((i %% 100) == 0)) {
-    #         cat(paste("ELBO: ", ELBOs[i], sep = ""))
-    #         cat("\n")
-    #       }
-    #     }
-    #     ELBOs = ELBOs[2:i]
-    #     
-    #     if (update_ELBO_progress) {
-    #       self$ELBO_progress = ELBOs
-    #     }
-    #   }
-    #   
-    #   invisible(self$root)
-    # }, 
-    # 
-    # jointly add to all nodes
-    # convergeFitEBJoint = function(tol = 1e-3, V_tol = 1e-3, update_sigma2 = FALSE, update_ELBO_progress = TRUE, verbose = TRUE) {
-    #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$ebCombineOperator != "."))
-    #   for (learner in base_learners) { # change any near-constant leaf to a constant and seal it off
-    #     if (learner$currentFit$V < V_tol) {
-    #       learner$fitFunction = fitFnConstComp
-    #       learner$ebCombineOperator = "."
-    #       learner$updateFit()
-    #     }
-    #   }
-    #   
-    #   base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & (x$ebCombineOperator != "."))
-    #   for (learner in base_learners) { # add to all nodes
-    #     learner_name = paste("mu_", learner$root$leafCount, sep = '')
-    #     combine_name = paste("combine_", learner$root$leafCount, sep = '')
-    #     learner$addLearnerEB(learner_name, combine_name)
-    #   }
-    #   
-    #   # update fit
-    #   ELBOs = numeric(1000)
-    #   ELBOs[1] = -Inf
-    #   ELBOs[2] = self$root$ELBO
-    #   i = 2
-    #   while (abs(ELBOs[i] - ELBOs[i-1]) > tol) {
-    #     self$root$Do(function(x) x$updateFit(), filterFun = function(x) x$isLeaf)
-    #     if (update_sigma2) {
-    #       self$root$update_sigma2()
-    #     }
-    #     i = i + 1
-    #     if (i > length(ELBOs)) { # double size of ELBOs for efficiency rather than making it bigger each iteration
-    #       ELBOs = c(ELBOs, rep(0, i))
-    #     }
-    #     ELBOs[i] = self$root$ELBO
-    #     if (verbose & ((i %% 100) == 0)) {
-    #       cat(paste("ELBO: ", ELBOs[i], sep = ""))
-    #       cat("\n")
-    #     }
-    #   }
-    #   ELBOs = ELBOs[2:i]
-    #   
-    #   if (update_ELBO_progress) {
-    #     self$ELBO_progress = ELBOs
-    #   }
-    #   
-    #   invisible(self$root)
-    # }, 
+    addLearnerAll2 = function(V_tol = 1e-3) { # to each leaf, add a "+" and "*"
+      self$root$lockLearners(V_tol) # lock learners
+      
+      base_learners = Traverse(self$root, filterFun = function(x) x$isLeaf & !x$isLocked)
+      for (learner in base_learners) {
+        fitFn = learner$fitFunction
+        predFn = learner$predFunction
+        learner_name = paste("mu_", learner$root$leafCount, sep = '')
+        combine_name = paste("combine_", learner$root$leafCount, sep = '')
+        
+        add_fit = list(mu1 = rep(0, length(learner$Y)), mu2 = rep(0, length(learner$Y)), KL_div = 0)
+        add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = add_fit)
+        learner$AddSiblingVEB2(add_node, "+", combine_name)
+        
+        learner_name = paste("mu_", learner$root$leafCount, sep = '')
+        combine_name = paste("combine_", learner$root$leafCount, sep = '')
+        
+        mult_fit = list(mu1 = rep(1, length(learner$Y)), mu2 = rep(1, length(learner$Y)), KL_div = 0)
+        mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = mult_fit)
+        learner$AddSiblingVEB2(mult_node, "*", combine_name)
+      }
+      
+      invisible(self$root)
+    },
     
-    # predict.veb = function(X_new) { # function to get prediction on new data
-    #   self$root$Do(function(node) {
-    #     node$pred_mu1 = node$predFunction(X_new, node$currentFit, 1)
-    #     node$pred_mu2 = node$predFunction(X_new, node$currentFit, 2)
-    #   }, filterFun = function(x) x$isLeaf)
-    #   invisible(self$root)
-    # }
+    convergeFitAll2 = function(tol = 1e-3, V_tol = 1e-3, update_sigma2 = FALSE, update_ELBO_progress = TRUE, verbose = TRUE) {
+      self$addLearnerAll2(V_tol)
+      #self$Do(function(node) node$updateMoments(), traversal = 'post-order')
+      self$root$convergeFit(tol, update_sigma2, update_ELBO_progress, verbose)
+      return(invisible(self$root))
+    },
+    
     predict.veb = function(X_new, moment = c(1, 2)) { # function to get prediction on new data
       self$root$Do(function(node) {
         if (1 %in% moment) {
@@ -603,10 +480,18 @@ VEBBoostNode <- R6::R6Class(
           }
         }
         if (self$parent$operator == "+") {
-          return(self$parent$sigma2)
+          s2 = self$parent$sigma2
+          if (length(s2) == 1) {
+            s2 = rep(s2, length(self$raw_Y))
+          }
+          return(s2)
         }
         if (self$parent$operator == "*") {
-          return(self$parent$sigma2 / self$siblings[[1]]$mu2)
+          s2 = self$parent$sigma2 / self$siblings[[1]]$mu2
+          if (length(s2) == 1) {
+            s2 = rep(s2, length(self$raw_Y))
+          }
+          return(s2)
         }
       } else {
         if (self$isRoot) {
@@ -642,7 +527,7 @@ VEBBoostNode <- R6::R6Class(
       if (self$root$family == "gaussian") {
         s2 = self$sigma2
         if (length(s2) == 1) {
-          s2 = rep(s2, length(self$Y))
+          s2 = rep(s2, length(self$raw_Y))
         }
         return(
           (-.5 * sum(log(2*pi*s2))) - 
@@ -705,46 +590,49 @@ VEBBoostNode <- R6::R6Class(
       }
     },
     
-    
     variance = function(value) { # variance of mean values at node
       if (!missing(value)) {
         stop("`$variance` cannot be modified directly", call. = FALSE)
       }
       
-      return(self$mu2 - self$mu1^2)
+      var = self$mu2 - self$mu1^2
+      if (length(var) == 1) {
+        var = rep(var, length(self$raw_Y))
+      }
+      return(var)
     }, 
     
-    # variance_partial_deriv = function(value) { # partial derivative of variance of mean w.r.t. variance at node
-    #   if (!missing(value)) {
-    #     stop("`$variance_partial_deriv` cannot be modified directly", call. = FALSE)
-    #   }
-    #   
-    #   if (self$isRoot) {
-    #     return(rep(1, length(self$Y)))
-    #   }
-    #   if (self$parent$operator == "+") {
-    #     return(self$parent$variance_partial_deriv)
-    #   } else {
-    #     return(self$siblings[[1]]$variance * self$parent$variance_partial_deriv)
-    #   }
-    # }, 
-    # 
-    # variance_influence = function(value) { # weighted variance partial deriv, weighted by variance at node
-    #   if (!missing(value)) {
-    #     stop("`$variance_influence` cannot be modified directly", call. = FALSE)
-    #   }
-    #   
-    #   if (all(self$Y == 0)) {
-    #     return(-Inf)
-    #   }
-    #   return(weighted.mean(self$variance_partial_deriv, self$variance))
-    #   # s2 = self$sigma2
-    #   # if (length(self$sigma2) == 1) {
-    #   #   s2 = rep(s2, length(self$Y))
-    #   # }
-    #   # return(mean(self$variance_partial_deriv * self$variance / s2))
-    #   #return(sum(self$variance * self$variance_partial_deriv))
-    # },
+    variance_partial_deriv = function(value) { # partial derivative of variance of mean w.r.t. variance at node
+      if (!missing(value)) {
+        stop("`$variance_partial_deriv` cannot be modified directly", call. = FALSE)
+      }
+
+      if (self$isRoot) {
+        return(rep(1, length(self$raw_Y)))
+      }
+      if (self$parent$operator == "+") {
+        return(self$parent$variance_partial_deriv)
+      } else {
+        return(self$siblings[[1]]$variance * self$parent$variance_partial_deriv)
+      }
+    },
+
+    variance_influence = function(value) { # weighted variance partial deriv, weighted by variance at node
+      if (!missing(value)) {
+        stop("`$variance_influence` cannot be modified directly", call. = FALSE)
+      }
+
+      if (all(self$Y == 0)) {
+        return(-Inf)
+      }
+      return(weighted.mean(self$variance_partial_deriv, self$variance))
+      # s2 = self$sigma2
+      # if (length(self$sigma2) == 1) {
+      #   s2 = rep(s2, length(self$Y))
+      # }
+      # return(mean(self$variance_partial_deriv * self$variance / s2))
+      #return(sum(self$variance * self$variance_partial_deriv))
+    },
     
     pred_mu1 = function(value) { # predicted first moment given new data
       if (!missing(value)) {
@@ -794,16 +682,16 @@ fitFnConstComp = function(X, Y, sigma2, init) {
   intercept = weighted.mean(Y, 1/sigma2)
   KL_div = 0
   
-  mu1 = rep(intercept, length(Y))
-  mu2 = rep(intercept^2, length(Y))
+  mu1 = intercept
+  mu2 = intercept^2
   return(list(mu1 = mu1, mu2 = mu2, intercept = intercept, KL_div = KL_div))
 }
 
 predFnConstComp = function(X_new, currentFit, moment = c(1, 2)) {
   if (moment == 1) {
-    return(rep(currentFit$intercept, get_nrow(X_new)))
+    return(currentFit$intercept)
   } else if (moment == 2) {
-    return(rep(currentFit$intercept^2, get_nrow(X_new)))
+    return(currentFit$intercept^2)
   } else {
     stop("`moment` must be either 1 or 2")
   }

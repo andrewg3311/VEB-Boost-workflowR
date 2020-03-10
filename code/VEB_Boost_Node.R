@@ -195,10 +195,10 @@ VEBBoostNode <- R6::R6Class(
       for (learner in base_learners) { # change any near-constant leaf to a constant and seal it off
         if (learner$currentFit$V < V_tol) {
           learner$isLocked = TRUE
-          learner$fitFunction = fitFnConstComp
-          learner$predFunction = predFnConstComp
-          learner$updateFit()
-          try({learner$updateMomentsAll()}, silent = T) # needed to avoid "attempt to apply non-function" error
+          # learner$fitFunction = fitFnConstComp
+          # learner$predFunction = predFnConstComp
+          # learner$updateFit()
+          # try({learner$updateMomentsAll()}, silent = T) # needed to avoid "attempt to apply non-function" error
         }
       }
       

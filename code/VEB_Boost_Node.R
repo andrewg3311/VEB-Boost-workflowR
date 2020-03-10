@@ -28,13 +28,15 @@ VEBBoostNode <- R6::R6Class(
     
     updateMoments = function() { # after updating the fit, pass changes to moments up to parent node
       if (!self$isLeaf) { # if not at a leaf, update moments
+        children_mu1_mu2 = lapply(self$children, function(x) x$mu1_mu2) # list of matrices of moments of children
+        children_mu1 = sapply(children_mu1_mu2, function(x) x[, 1]) # matrix of 1st moments of children
+        children_mu2 = sapply(children_mu1_mu2, function(x) x[, 2]) # matrix of 2nd moments of children
         if (self$operator == "+") {
-          children_mu1 = sapply(self$children, function(x) x$mu1)
           private$.mu1 = as.numeric(apply(children_mu1, MARGIN = 1, sum))
-          private$.mu2 = as.numeric(apply(sapply(self$children, function(x) x$mu2), MARGIN = 1, sum) + 2*apply(children_mu1, MARGIN = 1, prod))
+          private$.mu2 = as.numeric(apply(children_mu2, MARGIN = 1, sum) + 2*apply(children_mu1, MARGIN = 1, prod))
         } else {
-          private$.mu1 = as.numeric(apply(sapply(self$children, function(x) x$mu1), MARGIN = 1, prod))
-          private$.mu2 = as.numeric(apply(sapply(self$children, function(x) x$mu2), MARGIN = 1, prod))
+          private$.mu1 = as.numeric(apply(children_mu1, MARGIN = 1, prod))
+          private$.mu2 = as.numeric(apply(children_mu2, MARGIN = 1, prod))
         }
       }
       
@@ -43,13 +45,15 @@ VEBBoostNode <- R6::R6Class(
     
     updateMomentsAll = function() { # after updating the fit, pass changes to moments up to internal nodes
       if (!self$isLeaf) { # if not at a leaf, update moments
+        children_mu1_mu2 = lapply(self$children, function(x) x$mu1_mu2) # list of matrices of moments of children
+        children_mu1 = sapply(children_mu1_mu2, function(x) x[, 1]) # matrix of 1st moments of children
+        children_mu2 = sapply(children_mu1_mu2, function(x) x[, 2]) # matrix of 2nd moments of children
         if (self$operator == "+") {
-          children_mu1 = sapply(self$children, function(x) x$mu1)
           private$.mu1 = as.numeric(apply(children_mu1, MARGIN = 1, sum))
-          private$.mu2 = as.numeric(apply(sapply(self$children, function(x) x$mu2), MARGIN = 1, sum) + 2*apply(children_mu1, MARGIN = 1, prod))
+          private$.mu2 = as.numeric(apply(children_mu2, MARGIN = 1, sum) + 2*apply(children_mu1, MARGIN = 1, prod))
         } else {
-          private$.mu1 = as.numeric(apply(sapply(self$children, function(x) x$mu1), MARGIN = 1, prod))
-          private$.mu2 = as.numeric(apply(sapply(self$children, function(x) x$mu2), MARGIN = 1, prod))
+          private$.mu1 = as.numeric(apply(children_mu1, MARGIN = 1, prod))
+          private$.mu2 = as.numeric(apply(children_mu2, MARGIN = 1, prod))
         }
       }
       if (self$isRoot) { # if at root, stop
@@ -86,8 +90,8 @@ VEBBoostNode <- R6::R6Class(
       ELBOs[1] = -Inf
       ELBOs[2] = self$root$ELBO
       i = 2
-      post_order_traversal = Traverse(self$root, 'post-order')
-      rev_pre_order_traversal = rev(Traverse(self$root, 'pre-order'))
+      #post_order_traversal = Traverse(self$root, 'post-order')
+      #rev_pre_order_traversal = rev(Traverse(self$root, 'pre-order'))
       while (abs(ELBOs[i] - ELBOs[i-1]) > tol) {
         # if (i %% 2 == 0) {
         #   sapply(post_order_traversal, function(x) x$updateFit())
@@ -221,15 +225,13 @@ VEBBoostNode <- R6::R6Class(
         learner_name = paste("mu_", learner$root$leafCount, sep = '')
         combine_name = paste("combine_", learner$root$leafCount, sep = '')
         
-        add_fit = list(mu1 = rep(0, length(learner$Y)), mu2 = rep(0, length(learner$Y)), KL_div = 0)
-        add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = add_fit)
+        add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = list(KL_div = 0, mu1 = 0, mu2 = 0))
         learner$AddSiblingVEB(add_node, "+", combine_name)
         
         learner_name = paste("mu_", learner$root$leafCount, sep = '')
         combine_name = paste("combine_", learner$root$leafCount, sep = '')
         
-        mult_fit = list(mu1 = rep(1, length(learner$Y)), mu2 = rep(1, length(learner$Y)), KL_div = 0)
-        mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = mult_fit)
+        mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = list(KL_div = 0, mu1 = 1, mu2 = 1))
         learner$children[[1]]$AddSiblingVEB(mult_node, "*", combine_name)
       }
       
@@ -253,15 +255,13 @@ VEBBoostNode <- R6::R6Class(
         learner_name = paste("mu_", learner$root$leafCount, sep = '')
         combine_name = paste("combine_", learner$root$leafCount, sep = '')
         
-        add_fit = list(mu1 = rep(0, length(learner$Y)), mu2 = rep(0, length(learner$Y)), KL_div = 0)
-        add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = add_fit)
+        add_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = list(KL_div = 0))
         learner$AddSiblingVEB2(add_node, "+", combine_name)
         
         learner_name = paste("mu_", learner$root$leafCount, sep = '')
         combine_name = paste("combine_", learner$root$leafCount, sep = '')
         
-        mult_fit = list(mu1 = rep(1, length(learner$Y)), mu2 = rep(1, length(learner$Y)), KL_div = 0)
-        mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = mult_fit)
+        mult_node = VEBBoostNode$new(learner_name, fitFunction = fitFn, predFunction = predFn, currentFit = list(KL_div = 0))
         learner$AddSiblingVEB2(mult_node, "*", combine_name)
       }
       
@@ -277,11 +277,12 @@ VEBBoostNode <- R6::R6Class(
     
     predict.veb = function(X_new, moment = c(1, 2)) { # function to get prediction on new data
       self$root$Do(function(node) {
+        pred_mu =  node$predFunction(X_new, node$currentFit, moment)
         if (1 %in% moment) {
-          node$pred_mu1 = node$predFunction(X_new, node$currentFit, 1)
+          node$pred_mu1 = pred_mu$mu1
         }
         if (2 %in% moment) {
-          node$pred_mu2 = node$predFunction(X_new, node$currentFit, 2)
+          node$pred_mu2 = pred_mu$mu2
         }
       }, filterFun = function(x) x$isLeaf)
       invisible(self$root)
@@ -376,14 +377,18 @@ VEBBoostNode <- R6::R6Class(
         stop("`$mu1` cannot be modified directly", call. = FALSE)
       }
       if (self$isLeaf) {
-        mu1 = self$currentFit$mu1
+        if (!is.null(self$currentFit$mu1)) {
+          mu1 = self$currentFit$mu1
+        } else {
+          mu1 = self$predFunction(self$X, self$currentFit, 1)$mu1
+        }
       } else {
         mu1 = private$.mu1
       }
       if (length(mu1) == 1) {
         mu1 = rep(mu1, length(self$root$raw_Y))
       }
-      return(mu1)
+      return(as.numeric(mu1))
     },
     
     mu2 = function(value) {
@@ -391,14 +396,38 @@ VEBBoostNode <- R6::R6Class(
         stop("`$mu2` cannot be modified directly", call. = FALSE)
       }
       if (self$isLeaf) {
-        mu2 = self$currentFit$mu2
+        if (!is.null(self$currentFit$mu2)) {
+          mu2 = self$currentFit$mu2
+        } else {
+          mu2 = self$predFunction(self$X, self$currentFit, 2)$mu2
+        }
       } else {
         mu2 = private$.mu2
       }
       if (length(mu2) == 1) {
         mu2 = rep(mu2, length(self$root$raw_Y))
       }
-      return(mu2)
+      return(as.numeric(mu2))
+    }, 
+    
+    # matrix w/ first column mu1, second column mu2 (use to avoid repeated computation for mu1 and mu2)
+    mu1_mu2 = function(value) {
+      if (!missing(value)) {
+        stop("`$mu1_mu2` cannot be modified directly", call. = FALSE)
+      }
+      if (self$isLeaf) {
+        if (!is.null(self$currentFit$mu1) & !is.null(self$currentFit$mu2)) {
+          mu1_mu2 = cbind(self$currentFit$mu1, self$currentFit$mu2)
+        } else {
+          mu1_mu2 = do.call(cbind, self$predFunction(self$X, self$currentFit, c(1, 2)))
+        }
+      } else {
+        mu1_mu2 = cbind(private$.mu1, private$.mu2)
+      }
+      if (nrow(mu1_mu2) == 1) {
+        mu1_mu2 = matrix(mu1_mu2, nrow = length(self$root$raw_Y), ncol = 2, byrow = TRUE)
+      }
+      return(mu1_mu2)
     }, 
     
     KL_div = function(value) { # KL divergence from q to g of learner defined by sub-tree with this node as the root
@@ -682,19 +711,18 @@ fitFnConstComp = function(X, Y, sigma2, init) {
   intercept = weighted.mean(Y, 1/sigma2)
   KL_div = 0
   
-  mu1 = intercept
-  mu2 = intercept^2
-  return(list(mu1 = mu1, mu2 = mu2, intercept = intercept, KL_div = KL_div))
+  return(list(intercept = intercept, KL_div = KL_div))
 }
 
 predFnConstComp = function(X_new, currentFit, moment = c(1, 2)) {
-  if (moment == 1) {
-    return(currentFit$intercept)
-  } else if (moment == 2) {
-    return(currentFit$intercept^2)
-  } else {
-    stop("`moment` must be either 1 or 2")
+  res = list()
+  if (1 %in% moment) {
+    res = c(res, list(mu1 = currentFit$intercept))
   }
+  if (2 %in% moment) {
+    res = c(res, list(mu2 = currentFit$intercept^2))
+  }
+  return(res)
 }
 
 

@@ -675,9 +675,9 @@ VEBBoostNode <- R6::R6Class(
       if (self$isLeaf) {
         return(private$.pred_mu1)
       } else if (self$operator == "+") {
-        return(apply(do.call(cbind, lapply(self$children, function(x) x$pred_mu1)), MARGIN = 1, sum))
+        return(apply(sapply(self$children, function(x) x$pred_mu1), MARGIN = 1, sum))
       } else {
-        return(apply(do.call(cbind, lapply(self$children, function(x) x$pred_mu1)), MARGIN = 1, prod))
+        return(apply(sapply(self$children, function(x) x$pred_mu1), MARGIN = 1, prod))
       }
     },
     
@@ -693,9 +693,9 @@ VEBBoostNode <- R6::R6Class(
       if (self$isLeaf) {
         return(private$.pred_mu2)
       } else if (self$operator == "+") {
-        return(apply(do.call(cbind, lapply(self$children, function(x) x$pred_mu2)), MARGIN = 1, sum) + 2*apply(do.call(cbind, lapply(self$children, function(x) x$pred_mu1)), MARGIN = 1, prod))
+        return(apply(sapply(self$children, function(x) x$pred_mu2), MARGIN = 1, sum) + 2*apply(sapply(self$children, function(x) x$pred_mu1), MARGIN = 1, prod))
       } else {
-        return(apply(do.call(cbind, lapply(self$children, function(x) x$pred_mu2)), MARGIN = 1, prod))
+        return(apply(sapply(self$children, function(x) x$pred_mu2), MARGIN = 1, prod))
       }
     }
   ), 

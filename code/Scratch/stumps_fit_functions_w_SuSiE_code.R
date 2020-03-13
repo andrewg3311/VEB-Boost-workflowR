@@ -1,3 +1,4 @@
+library(data.tree)
 # get SuSiE stumps source code
 sapply(list.files("D:/School/Fall 2019/Matthew Stephens Research/susieR-susie_stumps/R/"), function(x) source(paste("D:/School/Fall 2019/Matthew Stephens Research/susieR-susie_stumps/R/", x, sep = "")))
 
@@ -53,7 +54,7 @@ compute_Xb_par = function(X, b){
     n_var = unlist(lapply(X,get_ncol)) # number of variables for each element of X
     b_split = split_vector(b,n_var) # split b into a list of vectors
     #Xb = mapply(compute_Xb,X,b_split,SIMPLIFY=FALSE) # apply compute_Xb to elements of lists X,b_split
-    Xb = foreach(i = 1:length(X), .combine = '+') %dopar% {
+    Xb = foreach(i = 1:length(X), .combine = '+', .inorder = F) %dopar% {
       compute_Xb(X[[i]], b_split[[i]])
     }
     return(Xb) # add the results up
@@ -85,11 +86,16 @@ compute_Xb_par = function(X, b){
 #' @importFrom Matrix crossprod
 compute_Xty_par = function(X, y){
   if(is.list(X)){ # perform Xty for each element in list and concatenate the results
-    unlist(lapply(X,compute_Xty,y=y))
+    # unlist(lapply(X,compute_Xty,y=y))
+    return(
+      foreach(Xj = X, .combine = 'c') %dopar% {
+        compute_Xty(Xj, y)
+      }
+    )
   } else {
     cm = get_cm(X)
     csd = get_csd(X)
-    
+
     #when X is a trend filtering matrix
     if (is.tfmatrix(X))
       scaled.Xty <- compute_tf_Xty(get_order(X),y)/csd
@@ -112,8 +118,9 @@ compute_Xty_par = function(X, y){
 
 
 # over-write make_stumps_matrix to not rely on susieR::
-make_stumps_matrix=function(X, include_linear, Xtrain=NULL){
-  if(is.null(Xtrain)){Xtrain = X}
+# also change Xtrain to be a list (allows for different lengths of breaks)
+make_stumps_matrix = function(X, include_linear, Xtrain=NULL){
+  if(is.null(Xtrain)){Xtrain = lapply(1:ncol(X), function(i) X[, i])}
   
   xl=list() # initialize
   if(include_linear){ #include X as a regular matrix first
@@ -124,7 +131,7 @@ make_stumps_matrix=function(X, include_linear, Xtrain=NULL){
     xl=c(xl,list(X))
   }
   
-  for(i in 1:ncol(X)){xl= c(xl,list(make_tfg_matrix(X[,i],Xtrain[,i])))}
+  for(i in 1:ncol(X)){xl= c(xl,list(make_tfg_matrix(X[,i],Xtrain[[i]])))}
   return(xl)
 }
 
@@ -137,7 +144,8 @@ make_stumps_matrix=function(X, include_linear, Xtrain=NULL){
 compute_tfg_Xb = function(X,b){
   order = get_order(X)
   for(i in 1:(order+1)){
-    b = rev(cumsum(rev(b))) # computes mean in each bin
+    #b = rev(cumsum(rev(b))) # computes mean in each bin
+    b = spatstat.utils::revcumsum(b) # faster than rev(cumsum(rev(b)))
   }
   return(b[attr(X,"t_to_bin")]) #  maps bin means to a mean for each datapoint
 }
@@ -173,11 +181,52 @@ compute_X2b = function(X, b, X_avg = 0) {
   }
 }
 
+compute_X2b_par = function(X, b, X_avg = 0) {
+  if (is.list(X)) {
+    n_var = unlist(lapply(X,get_ncol)) # number of variables for each element of X
+    b_split = split_vector(b,n_var) # split b into a list of vectors
+    return(
+      foreach(i = 1:length(X), .combine = '+', .inorder = F) %dopar% {
+        compute_X2b(X[[i]], b_split[[i]])
+      }
+    )
+  } else {
+    if (is.tfg_matrix(X)) {
+      # X is boolean matrix, so X^2 = X
+      return(compute_Xb(X, b))
+    } else {
+      return(compute_Xb(X^2, b))
+    }
+  }
+}
+
 
 # computes t((X - X_avg)^2) %*% y
 compute_X2ty = function(X, y, X_avg = 0) {
   if (is.list(X)) {
     return(unlist(lapply(X, compute_X2ty, y = y)) - 2*compute_Xty(X, y)*X_avg + (X_avg^2 * sum(y)))
+  } else {
+    if (is.tfg_matrix(X)) {
+      # X is boolean matrix, so X^2 = X
+      return(as.numeric(compute_Xty(X, y)))
+    } else {
+      return(as.numeric(compute_Xty(X^2, y)))
+    }
+  }
+}
+
+compute_X2ty_par = function(X, y, X_avg = 0) {
+  if (is.list(X)) {
+    if (length(X_avg) != 1) {
+      X_avg_split = split_vector(X_avg, sapply(X, get_ncol))
+    } else {
+      X_avg_split = lapply(1:length(X), function(i) X_avg)
+    }
+    return(
+      foreach(i = 1:length(X), .combine = 'c') %dopar% {
+        compute_X2ty(X[[i]], y) - (2 * compute_Xty(X[[i]], y) * X_avg_split[[i]])
+        }  + (X_avg^2 * sum(y))
+    )
   } else {
     if (is.tfg_matrix(X)) {
       # X is boolean matrix, so X^2 = X
@@ -233,8 +282,57 @@ weighted_SER = function(X, Y, sigma2, init = list(V = NULL)) {
   mu1 = intercept + compute_Xb(X, beta_post_1)
   # mu2 = E[(int + Xb)^2] = E[(Y_avg - X_avg'b + Xb)^2]
   #mu2 = Y_avg^2 + 2*Y_avg*(compute_Xb(X, beta_post_1) - sum(X_avg * beta_post_1)) + compute_X2b(X, beta_post_2) - 2*compute_Xb(X, beta_post_2*X_avg) + sum(X_avg^2 * beta_post_2)
-  mu2 = Y_avg^2 + 2*Y_avg*(compute_Xb(X, beta_post_1) - sum(X_avg * beta_post_1)) +
-    compute_X2b(X, beta_post_2, X_avg)
+  mu2 = Y_avg^2 + 2*Y_avg*(compute_Xb(X, beta_post_1) - sum(X_avg * beta_post_1)) + compute_X2b(X, beta_post_2, X_avg)
+  
+  KL_div = calc_KL(matrix(mu, ncol = 1), matrix(alpha, ncol = 1), matrix(sigma2_post, ncol = 1), V)
+  
+  return(list(mu1 = as.numeric(mu1), mu2 = as.numeric(mu2), KL_div = KL_div, alpha = alpha, mu = mu, sigma2_post = sigma2_post, intercept = intercept, V = V, X_avg = X_avg, Y_avg = Y_avg))
+}
+
+weighted_SER_par = function(X, Y, sigma2, init = list(V = NULL)) {
+  if (length(sigma2) == 1) {
+    sigma2 = rep(sigma2, length(Y))
+  }
+  
+  inv_sigma2 = 1 / sigma2
+  sum_inv_sigma2 = sum(inv_sigma2)
+  w = inv_sigma2 / sum_inv_sigma2
+  p = get_ncol(X)
+  prior_weights = rep(1 / p, p)
+  Y_avg = sum(Y * w)
+  Y_cent = Y - Y_avg
+  X_avg = compute_Xty_par(X, w) # vector of weighted avg of columns of X
+  
+  # tau_no_V = t(X_cent^2) %*% (1 / sigma2)
+  #tau_no_V = compute_X2ty(X, inv_sigma2) - 2*compute_Xty(X, inv_sigma2)*X_avg + (X_avg^2 * sum_inv_sigma2)
+  tau_no_V = compute_X2ty_par(X, inv_sigma2, X_avg)
+  # nu = colSums(X_cent * Y_cent / sigma2) <=> t(X_cent) %*% (Y_cent / sigma2)
+  nu = compute_Xty_par(X, Y_cent / sigma2) - (X_avg * sum(Y_cent / sigma2))
+  
+  V = ifelse(is.null(init$V), 1, init$V)
+  V = optimize_V(tau_no_V, nu, sigma2, prior_weights, V)
+  
+  tau = tau_no_V + (1 / V)
+  
+  alpha = log(prior_weights) - (.5 * log(tau)) + (.5 * nu^2 / tau)
+  alpha = alpha - max(alpha)
+  alpha = exp(alpha)
+  alpha = alpha / sum(alpha)
+  
+  mu = nu / tau
+  
+  sigma2_post = 1 / tau
+  
+  beta_post_1 = alpha * mu
+  beta_post_2 = alpha * (sigma2_post + mu^2)
+  intercept = as.numeric(Y_avg - sum(X_avg * beta_post_1))
+  
+  # mu1 = E[int + Xb] = E[Y_avg - X_avg'b + Xb]
+  mu1 = intercept + compute_Xb_par(X, beta_post_1)
+  # mu2 = E[(int + Xb)^2] = E[(Y_avg - X_avg'b + Xb)^2]
+  #mu2 = Y_avg^2 + 2*Y_avg*(compute_Xb(X, beta_post_1) - sum(X_avg * beta_post_1)) + compute_X2b(X, beta_post_2) - 2*compute_Xb(X, beta_post_2*X_avg) + sum(X_avg^2 * beta_post_2)
+  mu2 = Y_avg^2 + 2*Y_avg*(compute_Xb_par(X, beta_post_1) - sum(X_avg * beta_post_1)) +
+    compute_X2b_par(X, beta_post_2, X_avg)
   
   KL_div = calc_KL(matrix(mu, ncol = 1), matrix(alpha, ncol = 1), matrix(sigma2_post, ncol = 1), V)
   
@@ -245,6 +343,10 @@ fitFn = function(X, Y, sigma2, init) {
   return(weighted_SER(X, Y, sigma2, init))
 }
 
+fitFnPar = function(X, Y, sigma2, init) {
+  return(weighted_SER_par(X, Y, sigma2, init))
+}
+
 predFn = function(X_new, currentFit, moment = c(1, 2)) {
   beta_post_1 = currentFit$alpha * currentFit$mu
   if (moment == 1) {
@@ -253,6 +355,58 @@ predFn = function(X_new, currentFit, moment = c(1, 2)) {
     beta_post_2 = currentFit$alpha * (currentFit$sigma2_post + currentFit$mu^2)
     return(currentFit$Y_avg^2 + 2*currentFit$Y_avg*(compute_Xb(X_new, beta_post_1) - sum(currentFit$X_avg * beta_post_1)) + compute_X2b(X_new, beta_post_2, currentFit$X_avg))
   } else {
+  } else {
     stop("`moment` must be either 1 or 2")
   }
+}
+
+
+# function to get weighted combination of fits
+# returns (1 - rho)*fitOld + rho*fitNew
+fitCombineFn = function(fitOld, fitNew, rho, X, Y, sigma2, predFn) {
+  # find new X_avg and Y_avg (using all data points)
+  inv_sigma2 = 1 / sigma2
+  sum_inv_sigma2 = sum(inv_sigma2)
+  w = inv_sigma2 / sum_inv_sigma2
+  p = get_ncol(X)
+  prior_weights = rep(1 / p, p)
+  Y_avg = sum(Y * w)
+  X_avg = compute_Xty(X, w)
+  
+  fitOut = list(
+    alpha = (1 - rho)*fitOld$alpha + rho*fitNew$alpha, 
+    mu = (1 - rho)*fitOld$mu + rho*fitNew$mu, 
+    sigma2_post = (1 - rho)*fitOld$sigma2_post + rho*fitNew$sigma2_post, 
+    intercept = (1 - rho)*fitOld$intercept + rho*fitNew$intercept, 
+    V = (1 - rho)*fitOld$V + rho*fitNew$V, 
+    X_avg = X_avg, Y_avg = Y_avg
+  )
+  
+  fitOut$mu1 = predFn(X, fitOut, 1)
+  fitOut$mu2 = predFn(X, fitOut, 2)
+  fitOut$KL_div = calc_KL(matrix(fitOut$mu, ncol = 1), matrix(fitOut$alpha, ncol = 1), matrix(fitOut$sigma2_post, ncol = 1), fitOut$V)
+
+  return(fitOut)
+}
+
+
+currentFitVector = function() {
+  par = c(self$currentFit$alpha, self$currentFit$mu, self$currentFit$sigma2_post, self$currentFit$intercept, self$currentFit$V)
+  return(par)
+}
+
+setCurrentFit = function(par) {
+  p = get_ncol(self$X)
+  par_remainder = par
+  self$currentFit$alpha = par_remainder[1:p]
+  par_remainder = par_remainder[-c(1:p)]
+  self$currentFit$mu = par_remainder[1:p]
+  par_remainder = par_remainder[-c(1:p)]
+  self$currentFit$sigma2_post = par_remainder[1:p]
+  par_remainder = par_remainder[-c(1:p)]
+  self$currentFit$intercept = par_remainder[1]
+  par_remainder = par_remainder[-1]
+  self$currentFit$V = par_remainder[1]
+  par_remainder = par_remainder[-1]
+  return(par_remainder)
 }

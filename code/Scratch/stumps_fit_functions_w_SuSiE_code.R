@@ -355,7 +355,6 @@ predFn = function(X_new, currentFit, moment = c(1, 2)) {
     beta_post_2 = currentFit$alpha * (currentFit$sigma2_post + currentFit$mu^2)
     return(currentFit$Y_avg^2 + 2*currentFit$Y_avg*(compute_Xb(X_new, beta_post_1) - sum(currentFit$X_avg * beta_post_1)) + compute_X2b(X_new, beta_post_2, currentFit$X_avg))
   } else {
-  } else {
     stop("`moment` must be either 1 or 2")
   }
 }

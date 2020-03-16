@@ -119,16 +119,23 @@ compute_Xty_par = function(X, y){
 
 # over-write make_stumps_matrix to not rely on susieR::
 # also change Xtrain to be a list (allows for different lengths of breaks)
+# include_linear now supports a logical vector input with the same length as ncol(X)
+# for those entries that are TRUE, it includes those variables as linear terms
 make_stumps_matrix = function(X, include_linear, Xtrain=NULL){
   if(is.null(Xtrain)){Xtrain = lapply(1:ncol(X), function(i) X[, i])}
   
+  if (length(include_linear) == 1) { # change include_linear to be a logical vector
+    include_linear = rep(include_linear, ncol(X))
+  }
+  
   xl=list() # initialize
-  if(include_linear){ #include X as a regular matrix first
-    attr(X,"nrow") <- nrow(X)
-    attr(X,"ncol") <- ncol(X)
-    attr(X,"scaled:center") <- rep(0,ncol(X))
-    attr(X,"scaled:scale") <- rep(1,ncol(X))
-    xl=c(xl,list(X))
+  if(any(include_linear)){ #include X as a regular matrix first
+    X_linear = X[, include_linear]
+    attr(X,"nrow") <- nrow(X_linear)
+    attr(X,"ncol") <- ncol(X_linear)
+    attr(X,"scaled:center") <- rep(0,ncol(X_linear))
+    attr(X,"scaled:scale") <- rep(1,ncol(X_linear))
+    xl=c(xl,list(X_linear))
   }
   
   for(i in 1:ncol(X)){xl= c(xl,list(make_tfg_matrix(X[,i],Xtrain[[i]])))}

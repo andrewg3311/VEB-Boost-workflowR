@@ -131,10 +131,10 @@ make_stumps_matrix = function(X, include_linear, Xtrain=NULL){
   xl=list() # initialize
   if(any(include_linear)){ #include X as a regular matrix first
     X_linear = X[, include_linear]
-    attr(X,"nrow") <- nrow(X_linear)
-    attr(X,"ncol") <- ncol(X_linear)
-    attr(X,"scaled:center") <- rep(0,ncol(X_linear))
-    attr(X,"scaled:scale") <- rep(1,ncol(X_linear))
+    attr(X_linear,"nrow") <- nrow(X_linear)
+    attr(X_linear,"ncol") <- ncol(X_linear)
+    attr(X_linear,"scaled:center") <- rep(0,ncol(X_linear))
+    attr(X_linear,"scaled:scale") <- rep(1,ncol(X_linear))
     xl=c(xl,list(X_linear))
   }
   

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -29,6 +28,14 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -238,6 +245,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -269,6 +277,12 @@ $(document).ready(function () {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -364,13 +378,6 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<!-- Add a small amount of space between sections. -->
-<style type="text/css">
-div.section {
-  padding-top: 12px;
-}
-</style>
-
 <div class="fluid-row" id="header">
 
 <div class="btn-group pull-right">
@@ -410,7 +417,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-01-16
+<strong>Last updated:</strong> 2020-05-12
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -420,7 +427,7 @@ div.section {
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -501,41 +508,63 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree86db0167d78c8a36e1a90905e82ec949a16e019dtargetblank86db016a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/86db0167d78c8a36e1a90905e82ec949a16e019d" target="_blank">86db016</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree42bdc7303a6360a7bf673dd5d13b30451e22fb9atargetblank42bdc73a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/andrewg3311/VEB-Boost/tree/42bdc7303a6360a7bf673dd5d13b30451e22fb9a" target="_blank">42bdc73</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree86db0167d78c8a36e1a90905e82ec949a16e019dtargetblank86db016a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomandrewg3311VEBBoosttree42bdc7303a6360a7bf673dd5d13b30451e22fb9atargetblank42bdc73a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/andrewg3311/VEB-Boost/tree/42bdc7303a6360a7bf673dd5d13b30451e22fb9a" target="_blank">42bdc73</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    analysis/.Rhistory
-    Ignored:    docs/figure/
+    Ignored:    analysis/VEB_Boost_simulation_examples_cache/
+    Ignored:    analysis/figure/
 
 Untracked files:
     Untracked:  analysis/Archive/
+    Untracked:  analysis/VEB_Boost_real_data_examples.Rmd
+    Untracked:  analysis/VEB_Boost_simulation_examples.Rmd
+    Untracked:  code/Scratch/bigmemory_testing.R
     Untracked:  code/Scratch/daarem_testing.R
+    Untracked:  code/Scratch/normal_prior_bayesian_regression.R
     Untracked:  code/Scratch/stumps_fit_functions_w_SuSiE_code_FOR_BM.R
     Untracked:  code/Scratch/stumps_fit_functions_w_SuSiE_code_FOR_DAAREM.R
     Untracked:  code/Scratch/stumps_fit_functions_w_SuSiE_code_FOR_GD.R
+    Untracked:  code/Scratch/stumps_fit_functions_w_SuSiE_code_FOR_L_BFGS_B.R
     Untracked:  code/Scratch/testing_big_starting_tree_addition_DAAREM.R
+    Untracked:  code/Scratch/variable_importance_testing.R
     Untracked:  code/VEB_Boost_Node_Daarem.R
     Untracked:  code/VEB_Boost_Node_GD.R
+    Untracked:  code/VEB_Boost_Node_L_BFGS_B.R
     Untracked:  code/VEB_Boost_Node_SVI.R
     Untracked:  code/daarem_util_functions.R
+    Untracked:  data/Datasets/
     Untracked:  data/ELBO_progress_alternating.RData
     Untracked:  data/ELBO_progress_serial.RData
+    Untracked:  data/trig_poly_simulation_results.RData
+    Untracked:  output/Scratch/Max.pdf
+    Untracked:  output/Scratch/Simulations_2_20_20.pdf
+    Untracked:  output/Scratch/Trig_poly.pdf
 
 Unstaged changes:
-    Modified:   analysis/Growing_VEB_Boost_Tree.Rmd
     Modified:   code/Scratch/learner_MNIST.R
     Modified:   code/Scratch/stumps_fit_functions_w_SuSiE_code.R
     Modified:   code/VEB_Boost_MultiClass_Learner.R
-    Modified:   code/VEB_Boost_Node.R
     Modified:   code/VEB_Boost_Node_BM.R
     Deleted:    code/VEB_Boost_Node_Computationally_Efficient_Memory_Intensive.R
+    Deleted:    output/Scratch/rmse_kappa_1.pdf
+    Deleted:    output/Scratch/rmse_kappa_10.pdf
+    Deleted:    output/Scratch/time_kappa_1.pdf
+    Deleted:    output/Scratch/time_kappa_10.pdf
 
 </code></pre>
 <p>
@@ -550,7 +579,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/VEB_Boost_Derivation.Rmd</code>) and HTML (<code>docs/VEB_Boost_Derivation.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -579,13 +608,47 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/andrewg3311/VEB-Boost/blob/42bdc7303a6360a7bf673dd5d13b30451e22fb9a/analysis/VEB_Boost_Derivation.Rmd" target="_blank">42bdc73</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2020-05-12
+</td>
+<td>
+Updating math so that our prior is on what I now call beta, and our learner mu is a fixed function of beta, mu = h(beta). This
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/andrewg3311/VEB-Boost/0033177cca71de721da2014e21f0405705081c6f/docs/VEB_Boost_Derivation.html" target="_blank">0033177</a>
+</td>
+<td>
+Andrew Goldstein
+</td>
+<td>
+2020-01-16
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/andrewg3311/VEB-Boost/blob/86db0167d78c8a36e1a90905e82ec949a16e019d/analysis/VEB_Boost_Derivation.Rmd" target="_blank">86db016</a>
 </td>
 <td>
 Andrew Goldstein
 </td>
 <td>
-2020-01-17
+2020-01-16
 </td>
 <td>
 Adding note on importance of estimating residual variance/noise level
@@ -636,7 +699,7 @@ html
 Andrew Goldstein
 </td>
 <td>
-2019-09-19
+2019-09-18
 </td>
 <td>
 Build site.
@@ -653,7 +716,7 @@ Rmd
 Andrew Goldstein
 </td>
 <td>
-2019-09-19
+2019-09-18
 </td>
 <td>
 Tweaking second example so all nodes use all variables
@@ -1044,7 +1107,7 @@ html
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Build site.
@@ -1061,7 +1124,7 @@ Rmd
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Minor tweaks
@@ -1078,7 +1141,7 @@ html
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Build site.
@@ -1095,7 +1158,7 @@ Rmd
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Fixing path to .png
@@ -1112,7 +1175,7 @@ html
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Build site.
@@ -1129,7 +1192,7 @@ Rmd
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Updating to rey to get .png to show up online
@@ -1146,7 +1209,7 @@ html
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Build site.
@@ -1163,7 +1226,7 @@ Rmd
 Andrew Goldstein
 </td>
 <td>
-2019-09-13
+2019-09-12
 </td>
 <td>
 Updating with some math
@@ -1191,7 +1254,8 @@ Updating with some math
 \Big(\mu_1 \circ (\mu_2 + \mu_3)\Big) + (\mu_4 \circ \mu_5)
 \]</span> (where <span class="math inline">\(\mu_j\)</span> are our base learners).</p>
 <p>By constructing our learner this way, we can construct more complex learners from our base learners than traditional boosting can.</p>
-<p>All that is required of a base learner is being able to solve the general weighted regression problem using VEB, and be able to return its first 2 moments, as well as KL divergence.</p>
+<p>Note that we place a prior on <span class="math inline">\(\beta_j \in \mathbb{R}^{p_j}\)</span>, and define <span class="math inline">\(\mu_j \equiv h_j(\beta_j)\)</span> for a fixed function <span class="math inline">\(h: \mathbb{R}^{p_j} \to \mathbb{R}^n\)</span>. For example, for <span class="math inline">\(X \in \mathbb{R}^{n \times p}\)</span>, <span class="math inline">\(h(\beta) = X\beta\)</span>.</p>
+<p>All that is required of a base learner is being able to solve the general weighted regression problem using VEB, and be able to return the first 2 moments of <span class="math inline">\(\mu \equiv h(\beta)\)</span>, as well as KL divergence from the (approximate) posterior <span class="math inline">\(q(\beta)\)</span> of <span class="math inline">\(\beta\)</span> to the prior of <span class="math inline">\(\beta\)</span> <span class="math inline">\(g(\beta)\)</span>, i.e. <span class="math inline">\(D_{KL}\Big(q(\beta) \| g(\beta)\Big)\)</span>.</p>
 </div>
 <div id="miscellaneous-preliminaries" class="section level1">
 <h1>Miscellaneous Preliminaries</h1>
@@ -1201,19 +1265,20 @@ Updating with some math
 <p>For the weighted version of a regression, we have: <span class="math display">\[
 \begin{aligned}
 Y = \mu + E \\
-\mu \sim g(\cdot) \in \mathcal{G} \\
+\mu \equiv h(\beta) \\
+\beta \sim g(\cdot) \in \mathcal{G} \\
 E \sim \mathcal{N}(0, diag(\vec{\sigma^2})) \\
 \text{Where } \quad \vec{\sigma^2} = [\sigma_1^2, \dots, \sigma_n^2]^T
 \end{aligned}
 \]</span></p>
 <p>In this case, the ELBO can be written as <span class="math display">\[
-F(q, g, \vec{\sigma^2}; y) = -\frac{n}{2}\log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) - \frac{1}{2}\mathbb{E}_q\Bigg[\Bigg\|\Big(y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_q \Bigg[\log \frac{g(\mu)}{q(\mu)}\Bigg]
+F(q, g, \vec{\sigma^2}; y) = -\frac{n}{2}\log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) - \frac{1}{2}\mathbb{E}_q\Bigg[\Bigg\|\Big(y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_q \Bigg[\log \frac{g(\beta)}{q(\beta)}\Bigg]
 \]</span></p>
 <p>Then the form of the VB update is: <span class="math display">\[
 \begin{aligned}
-q(\mu = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(Y|\mu = \mathbf{c}\Big)\Bigg\} = \\
-\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) + \frac{1}{\sigma_i^2}\Big(Y_i - \mathbf{c}_i\Big)^2\Bigg\} \propto \\
-\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(\mathbf{c}_i^2 - 2\mathbf{c}_iY_i\Big)\Bigg\}
+q(\beta = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(Y|\beta = \mathbf{c}\Big)\Bigg\} = \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) + \frac{1}{\sigma_i^2}\Big(Y_i - h(\mathbf{c})_i\Big)^2\Bigg\} \propto \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(h(\mathbf{c})_i^2 - 2h(\mathbf{c})_iY_i\Big)\Bigg\}
 \end{aligned}
 \]</span></p>
 </div>
@@ -1222,12 +1287,13 @@ q(\mu = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(
 <p>Let <span class="math inline">\(T(\mu_1, \dots, \mu_K)\)</span> be the learner implied by a given tree structure <span class="math inline">\(T\)</span> and base learners <span class="math inline">\(\mu_j\)</span> (e.g. in the example above, <span class="math inline">\(T(\mu_1, \dots, \mu_5 = \Big(\mu_1 \circ (\mu_2 + \mu_3)\Big) + (\mu_4 \circ \mu_5)\)</span>). Then the formal model for VEB-Boosting for the given tree and base learners is given by: <span class="math display">\[
 \begin{aligned}
 Y = T\Big(\mu_1, \dots, \mu_L\Big) + E \\
-\mu_j \stackrel{\perp}{\sim} g_j(\cdot) \in \mathcal{G}_j, \quad j = 1, \dots, L \\
+\mu_j \equiv h_j(\beta_j), \quad j = 1, \dots, L \\
+\beta_j \stackrel{\perp}{\sim} g_j(\cdot) \in \mathcal{G}_j, \quad j = 1, \dots, L \\
 E \sim \mathcal{N}(0, \sigma^2 I_n) \\
 \end{aligned}
 \]</span> (Note that the model easily extends to the case of non-constant variance, since the building-blocks are already based on weighted regression).</p>
 <p>To fit this model, we use variational inference with a mean-field approximation <span class="math inline">\(\mathcal{Q}\)</span>: <span class="math display">\[
-q\Big(\mu_1, \dots, \mu_L\Big) = \prod_{j=1}^L q_j\Big(\mu_j\Big)
+q\Big(\beta_1, \dots, \beta_L\Big) = \prod_{j=1}^L q_j\Big(\beta_j\Big)
 \]</span></p>
 </div>
 <div id="describing-a-base-learners-role-in-the-tree" class="section level2">
@@ -1261,7 +1327,7 @@ q\Big(\mu_1, \dots, \mu_L\Big) = \prod_{j=1}^L q_j\Big(\mu_j\Big)
 </div>
 <div id="cautionary-note" class="section level2">
 <h2>Cautionary Note</h2>
-<p>One observation worth noting is that there is an identifiability issue present for the signs of the base learners when we include Schur multiplication, and our prior distribution for <span class="math inline">\(\mu_j\)</span> is symmetric about 0. For example, in the example tree above, we can flip the signs for <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\mu_2, \; \mu_3\)</span> jointly. This will yield the same tree-defined mean. So if our priors for these base learners is symmetric about 0, then we cannot identify the sign of the base learners.</p>
+<p>One observation worth noting is that there is an identifiability issue present for the signs of the base learners when we include Schur multiplication, and our implied prior distribution for <span class="math inline">\(\mu_j\)</span> is symmetric about 0. For example, in the example tree above, we can flip the signs for <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\mu_2, \; \mu_3\)</span> jointly. This will yield the same tree-defined mean. So if our priors for these base learners is symmetric about 0, then we cannot identify the sign of the base learners.</p>
 <p>Although this does not alter the fitted values for the overall learner, this makes interpretation more difficult. It also raises the point that the distributions for different nodes are far from independent from one another, despite our variational approximation. However, this is usually the case when making the standard independence assumption in variational inference.</p>
 </div>
 </div>
@@ -1269,13 +1335,13 @@ q\Big(\mu_1, \dots, \mu_L\Big) = \prod_{j=1}^L q_j\Big(\mu_j\Big)
 <h1>Derivation of VEB Coordinate Ascent Updates</h1>
 <p>To solve the VEB problem, <span class="math inline">\(\arg \max_{q \in \mathcal{Q}, g \in \mathcal{G}, \theta \in \Theta} F(q, g, \sigma^2;y)\)</span>, we can perform coordinate ascent updates, where we update each <span class="math inline">\((q_l, g_l)\)</span> individually, and then update <span class="math inline">\(\sigma^2\)</span>.</p>
 <p>Under this model, we can write the ELBO as <span class="math display">\[
-F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
-\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg] = \\
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg]
 \]</span></p>
 <p>In terms of a specific <span class="math inline">\(\mu_j\)</span> in position <span class="math inline">\(s = d_1 \cdots d_K\)</span> (and the corresponding <span class="math inline">\(q_j\)</span> and <span class="math inline">\(g_j\)</span>), we can write the ELBO as <span class="math display">\[
-\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{K-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg] = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{K-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \]</span></p>
 <p>For a given operator <span class="math inline">\(\oplus\)</span>, and implied distribution over <span class="math inline">\(\nu_2\)</span> (with first moment <span class="math inline">\(\bar{\nu_2}\)</span> and second moment <span class="math inline">\(\overline{\nu_2^2}\)</span>), define <span class="math display">\[
 \nu_1 \bar{\oplus} \nu_2 :=
@@ -1290,68 +1356,68 @@ F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=
 \vec{Q^2} := \circ_s \overline{\nu_{s\overline{d}}^2}
 \]</span> where <span class="math inline">\(s\)</span> runs over all partials string of <span class="math inline">\(d_1 \cdots d_{K-1}\)</span> such that <span class="math inline">\(\oplus_s = \circ\)</span> and <span class="math inline">\(d\)</span> follows <span class="math inline">\(s\)</span> in <span class="math inline">\(d_1 \cdots d_{K}\)</span> (i.e. as you go up the path from the base learner <span class="math inline">\(\mu_j\)</span> to the root, <span class="math inline">\(\vec{Q^2}\)</span> is the schur product of the second moments of the learners that are joined to this path by Schur multiplication but are not on the path themselves).</p>
 <p>With these definitions in place, we make the following claim: <span class="math display">\[
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \]</span></p>
 <p>We prove this claim by induction over <span class="math inline">\(K\)</span>, the length of the string defining the position of <span class="math inline">\(\mu_j\)</span> in the tree.</p>
 <p><strong>Base case: <span class="math inline">\(K = 1\)</span></strong> In this case, the ELBO is <span class="math display">\[
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \oplus_\cdot \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \oplus_\cdot \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \]</span></p>
 <ol style="list-style-type: decimal">
 <li><p><span class="math inline">\(\oplus_\cdot = +\)</span> <span class="math display">\[
 \begin{aligned}
 \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j + \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big((Y - \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu_j \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \\
 \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(\mathbb{E}_{q_{-j}} \Big[\Big\|(Y - \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big] - 2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\mu_j \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Big\|\Big(Y - \bar{\nu}_{\bar{d_1}}\Big) \circ \frac{1}{\vec{\sigma}} - \mu_j \circ \frac{1}{\vec{\sigma}} \Big\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Big\|\Big(Y - \bar{\nu}_{\bar{d_1}}\Big) \circ \frac{1}{\vec{\sigma}} - \mu_j \circ \frac{1}{\vec{\sigma}} \Big\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 \]</span></p></li>
 <li><p><span class="math inline">\(\oplus_\cdot = \circ\)</span> <span class="math display">\[
 \begin{aligned}
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \circ \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(-2\Big(Y \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\mu_j \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}}\Big) \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}} - \mu_j\circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \circ \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(-2\Big(Y \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\mu_j \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}}\Big) \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}} - \mu_j\circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Bigg\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 \]</span></p></li>
 </ol>
 <p>In both cases, the ELBO has the desired form.</p>
 <p><strong>Inductive Step: Assume true for <span class="math inline">\(K-1\)</span></strong> In this case, the ELBO is <span class="math display">\[
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \]</span> Define <span class="math display">\[
 \nu_{d_1} := \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{K-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg)
 \]</span></p>
 <p>So we can write the ELBO more compactly as <span class="math display">\[
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \]</span></p>
 <ol style="list-style-type: decimal">
 <li><p><span class="math inline">\(\oplus_\cdot = +\)</span> <span class="math display">\[
 \begin{aligned}
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} + \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \\
 [\text{Split expectation over} -j] = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \mathbb{E}_{\bar{d_1}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[-2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \mathbb{E}_{\bar{d_1}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[-2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
 [\text{Inductive step, with response } Y - \bar{\nu}_{\bar{d_1}}] = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 \]</span></p></li>
 <li><p><span class="math inline">\(\oplus_\cdot = \circ\)</span> <span class="math display">\[
 \begin{aligned}
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \beta_j,q_j, g_j) = \\
 [\text{Split expectation over} -j] = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1}\Big[-2\Big(Y \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\ = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1}\Big[-2\Big(Y \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg]  + (const \; in \; \beta_j,q_j, g_j) = \\ = \\
 [\text{Inductive Step, with response } Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \text{and variances } \frac{\vec{\sigma^2}}{\bar{\nu^2}_{\bar{d_1}}}] = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 \]</span></p></li>
 </ol>
 <p>Thus, the claim has been shown.</p>
-<p>As a consequence, the claim shows that we can update each <span class="math inline">\((q_j, g_j)\)</span> by finding the VEB solution to the weighted regression problem with response <span class="math inline">\(\tilde{Y}\)</span> and variances <span class="math inline">\(\vec{\frac{\sigma^2}{Q^2}}\)</span>. All we need are the first 2 moments from all other base learners, the tree structure in order to reconstruct how the other learners are related to <span class="math inline">\(\mu_j\)</span>, and a function to solve the desired VEB problem corresponding to the prior class for <span class="math inline">\(\mu_j\)</span>.</p>
+<p>As a consequence, the claim shows that we can update each <span class="math inline">\((q_j, g_j)\)</span> by finding the VEB solution to the weighted regression problem with response <span class="math inline">\(\tilde{Y}\)</span> and variances <span class="math inline">\(\vec{\frac{\sigma^2}{Q^2}}\)</span>. All we need are the first 2 moments from all other base learners, the tree structure in order to reconstruct how the other learners are related to <span class="math inline">\(\mu_j\)</span>, and a function to solve the desired VEB problem corresponding to the prior class for <span class="math inline">\(\beta_j\)</span>.</p>
 <div id="calculating-the-elbo" class="section level2">
 <h2>Calculating the ELBO</h2>
 <p>After all base learners have been updated, calculating the ELBO is straightforward. As before, we can write the ELBO as <span class="math display">\[
-\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg]
 \]</span></p>
 <p>We can simiplify this as <span class="math display">\[
--\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]  + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]  + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg] = \\
 -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg] - \sum_{l=1}^L D_{KL}\Big(Q_l \| G_l\Big)
 \]</span></p>
 <p>If we store the KL divergergence for each of our terminal nodes, the first 2 moments of the fitted models at each terminal node, and have a way of combining the moments for the entire tree, then calculating the ELBO is easy.</p>
@@ -1373,9 +1439,9 @@ F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.6.1 (2019-07-05)
+<pre><code>R version 3.6.3 (2020-02-29)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
-Running under: Windows 10 x64 (build 18362)
+Running under: Windows 10 x64 (build 18363)
 
 Matrix products: default
 
@@ -1389,13 +1455,16 @@ locale:
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
+other attached packages:
+[1] workflowr_1.6.2
+
 loaded via a namespace (and not attached):
- [1] workflowr_1.4.0 Rcpp_1.0.2      digest_0.6.21   rprojroot_1.3-2
- [5] backports_1.1.5 git2r_0.26.1    magrittr_1.5    evaluate_0.14  
- [9] rlang_0.4.0     stringi_1.4.3   fs_1.3.1        whisker_0.4    
-[13] rmarkdown_1.16  tools_3.6.1     stringr_1.4.0   glue_1.3.1     
-[17] xfun_0.10       yaml_2.2.0      compiler_3.6.1  htmltools_0.4.0
-[21] knitr_1.25     </code></pre>
+ [1] Rcpp_1.0.4      rprojroot_1.3-2 digest_0.6.25   later_1.0.0    
+ [5] R6_2.4.1        backports_1.1.6 git2r_0.27.1    magrittr_1.5   
+ [9] evaluate_0.14   stringi_1.4.6   rlang_0.4.5     fs_1.4.1       
+[13] promises_1.1.0  whisker_0.4     rmarkdown_2.1   tools_3.6.3    
+[17] stringr_1.4.0   glue_1.4.0      httpuv_1.5.2    xfun_0.13      
+[21] yaml_2.2.1      compiler_3.6.3  htmltools_0.4.0 knitr_1.28     </code></pre>
 </div>
 </div>
 </div>

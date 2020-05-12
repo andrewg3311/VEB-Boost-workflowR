@@ -37,7 +37,9 @@ $$
 
 By constructing our learner this way, we can construct more complex learners from our base learners than traditional boosting can.
 
-All that is required of a base learner is being able to solve the general weighted regression problem using VEB, and be able to return its first 2 moments, as well as KL divergence.
+Note that we place a prior on $\beta_j \in \mathbb{R}^{p_j}$, and define $\mu_j \equiv h_j(\beta_j)$ for a fixed function $h: \mathbb{R}^{p_j} \to \mathbb{R}^n$. For example, for $X \in \mathbb{R}^{n \times p}$, $h(\beta) = X\beta$.
+
+All that is required of a base learner is being able to solve the general weighted regression problem using VEB, and be able to return the first 2 moments of $\mu \equiv h(\beta)$, as well as KL divergence from the (approximate) posterior $q(\beta)$ of $\beta$ to the prior of $\beta$ $g(\beta)$, i.e. $D_{KL}\Big(q(\beta) \| g(\beta)\Big)$.
 
 
 # Miscellaneous Preliminaries
@@ -48,7 +50,8 @@ For the weighted version of a regression, we have:
 $$
 \begin{aligned}
 Y = \mu + E \\
-\mu \sim g(\cdot) \in \mathcal{G} \\
+\mu \equiv h(\beta) \\
+\beta \sim g(\cdot) \in \mathcal{G} \\
 E \sim \mathcal{N}(0, diag(\vec{\sigma^2})) \\
 \text{Where } \quad \vec{\sigma^2} = [\sigma_1^2, \dots, \sigma_n^2]^T
 \end{aligned}
@@ -56,16 +59,16 @@ $$
 
 In this case, the ELBO can be written as
 $$
-F(q, g, \vec{\sigma^2}; y) = -\frac{n}{2}\log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) - \frac{1}{2}\mathbb{E}_q\Bigg[\Bigg\|\Big(y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_q \Bigg[\log \frac{g(\mu)}{q(\mu)}\Bigg]
+F(q, g, \vec{\sigma^2}; y) = -\frac{n}{2}\log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) - \frac{1}{2}\mathbb{E}_q\Bigg[\Bigg\|\Big(y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_q \Bigg[\log \frac{g(\beta)}{q(\beta)}\Bigg]
 $$
 
 
 Then the form of the VB update is:
 $$
 \begin{aligned}
-q(\mu = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(Y|\mu = \mathbf{c}\Big)\Bigg\} = \\
-\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) + \frac{1}{\sigma_i^2}\Big(Y_i - \mathbf{c}_i\Big)^2\Bigg\} \propto \\
-\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(\mathbf{c}_i^2 - 2\mathbf{c}_iY_i\Big)\Bigg\}
+q(\beta = \mathbf{c}) \propto \exp\Bigg\{\log\Big(g(\mathbf{c})\Big) + \log\Big(p(Y|\beta = \mathbf{c}\Big)\Bigg\} = \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{n}{2} \log(2\pi) - \frac{1}{2} \sum_{i=1}^n \log(\sigma_i^2) + \frac{1}{\sigma_i^2}\Big(Y_i - h(\mathbf{c})_i\Big)^2\Bigg\} \propto \\
+\exp\Bigg\{\log\Big(g(\mathbf{c})\Big) - \frac{1}{2} \sum_{i=1}^n \frac{1}{\sigma_i^2}\Big(h(\mathbf{c})_i^2 - 2h(\mathbf{c})_iY_i\Big)\Bigg\}
 \end{aligned}
 $$
 
@@ -75,7 +78,8 @@ Let $T(\mu_1, \dots, \mu_K)$ be the learner implied by a given tree structure $T
 $$
 \begin{aligned}
 Y = T\Big(\mu_1, \dots, \mu_L\Big) + E \\
-\mu_j \stackrel{\perp}{\sim} g_j(\cdot) \in \mathcal{G}_j, \quad j = 1, \dots, L \\
+\mu_j \equiv h_j(\beta_j), \quad j = 1, \dots, L \\
+\beta_j \stackrel{\perp}{\sim} g_j(\cdot) \in \mathcal{G}_j, \quad j = 1, \dots, L \\
 E \sim \mathcal{N}(0, \sigma^2 I_n) \\
 \end{aligned}
 $$
@@ -83,7 +87,7 @@ $$
 
 To fit this model, we use variational inference with a mean-field approximation $\mathcal{Q}$:
 $$
-q\Big(\mu_1, \dots, \mu_L\Big) = \prod_{j=1}^L q_j\Big(\mu_j\Big)
+q\Big(\beta_1, \dots, \beta_L\Big) = \prod_{j=1}^L q_j\Big(\beta_j\Big)
 $$
 
 ## Describing a Base Learner's Role in the Tree
@@ -125,7 +129,7 @@ $$
 $$
 
 ## Cautionary Note
-One observation worth noting is that there is an identifiability issue present for the signs of the base learners when we include Schur multiplication, and our prior distribution for $\mu_j$ is symmetric about 0. For example, in the example tree above, we can flip the signs for $\mu_1$ and $\mu_2, \; \mu_3$ jointly. This will yield the same tree-defined mean. So if our priors for these base learners is symmetric about 0, then we cannot identify the sign of the base learners.
+One observation worth noting is that there is an identifiability issue present for the signs of the base learners when we include Schur multiplication, and our implied prior distribution for $\mu_j$ is symmetric about 0. For example, in the example tree above, we can flip the signs for $\mu_1$ and $\mu_2, \; \mu_3$ jointly. This will yield the same tree-defined mean. So if our priors for these base learners is symmetric about 0, then we cannot identify the sign of the base learners.
 
 Although this does not alter the fitted values for the overall learner, this makes interpretation more difficult. It also raises the point that the distributions for different nodes are far from independent from one another, despite our variational approximation. However, this is usually the case when making the standard independence assumption in variational inference.
 
@@ -135,15 +139,15 @@ To solve the VEB problem, $\arg \max_{q \in \mathcal{Q}, g \in \mathcal{G}, \the
 
 Under this model, we can write the ELBO as
 $$
-F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
-\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+F(q, g, \sigma^2;y) = \mathbb{E}_q\Bigg[\log p(y|\mu, \sigma^2)\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg] = \\
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg]
 $$
 
 In terms of a specific $\mu_j$ in position $s = d_1 \cdots d_K$ (and the corresponding $q_j$ and $g_j$), we can write the ELBO as
 $$
-\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{K-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg] = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{K-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 $$
 
 For a given operator $\oplus$, and implied distribution over $\nu_2$ (with first moment $\bar{\nu_2}$ and second moment $\overline{\nu_2^2}$), define
@@ -167,8 +171,8 @@ where $s$ runs over all partials string of $d_1 \cdots d_{K-1}$ such that $\oplu
 
 With these definitions in place, we make the following claim:
 $$
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 $$
 
 We prove this claim by induction over $K$, the length of the string defining the position of $\mu_j$ in the tree.
@@ -176,7 +180,7 @@ We prove this claim by induction over $K$, the length of the string defining the
 **Base case: $K = 1$**
 In this case, the ELBO is
 $$
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \oplus_\cdot \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \oplus_\cdot \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 $$
 
 1. $\oplus_\cdot = +$
@@ -184,15 +188,15 @@ $$
 \begin{aligned}
 \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j + \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big((Y - \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\mu_j \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \\
 \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(\mathbb{E}_{q_{-j}} \Big[\Big\|(Y - \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big] - 2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\mu_j \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Big\|\Big(Y - \bar{\nu}_{\bar{d_1}}\Big) \circ \frac{1}{\vec{\sigma}} - \mu_j \circ \frac{1}{\vec{\sigma}} \Big\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Big\|\Big(Y - \bar{\nu}_{\bar{d_1}}\Big) \circ \frac{1}{\vec{\sigma}} - \mu_j \circ \frac{1}{\vec{\sigma}} \Big\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 $$
 
 2. $\oplus_\cdot = \circ$
 $$
 \begin{aligned}
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \circ \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(-2\Big(Y \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\mu_j \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}}\Big) \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}} - \mu_j\circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}} \Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big((\mu_j \circ \nu_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg(-2\Big(Y \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\mu_j \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\mu_j \circ \sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Bigg)\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}}\Big) \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}} - \mu_j\circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Bigg\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 $$
 
@@ -201,7 +205,7 @@ In both cases, the ELBO has the desired form.
 **Inductive Step: Assume true for $K-1$**
 In this case, the ELBO is
 $$
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \Bigg(\nu_{d_1 \bar{d_2}} \oplus_{d_1} \Big(\nu_{d_1 d_2 \bar{d_3}} \oplus_{d_2} \cdots (\mu_j \oplus_{d_1 d_2 \cdots d_{k-1}} \nu_{d_1 d_2 \cdots d_{K-1} \bar{d_K}}) \cdots\Big)\Bigg) \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 $$
 Define
 $$
@@ -210,7 +214,7 @@ $$
 
 So we can write the ELBO more compactly as
 $$
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\mu_j)}{q_j(\mu_j)}\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \oplus_\cdot \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + \mathbb{E}_{q_j} \Bigg[\log \frac{g_j(\beta_j)}{q_j(\beta_j)}\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 $$
 
 1. $\oplus_\cdot = +$
@@ -218,10 +222,10 @@ $$
 \begin{aligned}
 \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} + \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \\
 [\text{Split expectation over} -j] = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \mathbb{E}_{\bar{d_1}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[-2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \mathbb{E}_{\bar{d_1}}\Big[\Big\|\Big((Y - \nu_{\bar{d_1}} ) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[-2\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big)^T\Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big((Y - \bar{\nu}_{\bar{d_1}}) \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] + (const \; in \; \beta_j,q_j, g_j) = \\
 [\text{Inductive step, with response } Y - \bar{\nu}_{\bar{d_1}}] = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 $$
 
@@ -229,29 +233,29 @@ $$
 2. $\oplus_\cdot = \circ$
 $$
 \begin{aligned}
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[\Big\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg] = \mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{q_{-j}}\Big[-2\Big(Y \circ \nu_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\nu_{\bar{d_1}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \beta_j,q_j, g_j) = \\
 [\text{Split expectation over} -j] = \\
-\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1}\Big[-2\Big(Y \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg]  + (const \; in \; \mu_j,q_j, g_j) = \\ = \\
+\mathbb{E}_{q_j}\Bigg[-\frac{1}{2} \mathbb{E}_{d_1}\Big[-2\Big(Y \circ \bar{\nu}_{\bar{d_1}} \circ \frac{1}{\vec{\sigma}}\Big)^T \Big(\nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big) + \Big\|\sqrt{\bar{\nu^2}_{\bar{d_1}}} \circ \nu_{d_1} \circ \frac{1}{\vec{\sigma}}\Big\|_2^2\Big]\Bigg]  + (const \; in \; \beta_j,q_j, g_j) = \\
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \mathbb{E}_{d_1} \Big[\Big\|\Big(Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big) - \Big(\nu_{d_1} \circ \frac{\sqrt{\bar{\nu^2}_{\bar{d_1}}}}{\vec{\sigma}}\Big)\Big\|_2^2\Big]\Bigg]  + (const \; in \; \beta_j,q_j, g_j) = \\ = \\
 [\text{Inductive Step, with response } Y \circ \frac{\bar{\nu}_{\bar{d_1}}}{\bar{\nu^2}_{\bar{d_1}}} \text{and variances } \frac{\vec{\sigma^2}}{\bar{\nu^2}_{\bar{d_1}}}] = \\
-\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \mu_j,q_j, g_j)
+\mathbb{E}_{q_j} \Bigg[-\frac{1}{2} \Bigg\|\Big(\tilde{Y} \circ \vec{\frac{Q}{\sigma}}\Big) - \Big(\mu_j \circ \vec{\frac{Q}{\sigma}}\Big)\Bigg\|_2^2\Bigg] + (const \; in \; \beta_j,q_j, g_j)
 \end{aligned}
 $$
 
 Thus, the claim has been shown.
 
-As a consequence, the claim shows that we can update each $(q_j, g_j)$ by finding the VEB solution to the weighted regression problem with response $\tilde{Y}$ and variances $\vec{\frac{\sigma^2}{Q^2}}$. All we need are the first 2 moments from all other base learners, the tree structure in order to reconstruct how the other learners are related to $\mu_j$, and a function to solve the desired VEB problem corresponding to the prior class for $\mu_j$.
+As a consequence, the claim shows that we can update each $(q_j, g_j)$ by finding the VEB solution to the weighted regression problem with response $\tilde{Y}$ and variances $\vec{\frac{\sigma^2}{Q^2}}$. All we need are the first 2 moments from all other base learners, the tree structure in order to reconstruct how the other learners are related to $\mu_j$, and a function to solve the desired VEB problem corresponding to the prior class for $\beta_j$.
 
 
 ## Calculating the ELBO
 After all base learners have been updated, calculating the ELBO is straightforward. As before, we can write the ELBO as
 $$
-\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg]
+\mathbb{E}_q\Bigg[-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2} \Bigg\|\Big(Y \circ \frac{1}{\vec{\sigma}}\Big) - \Big(T(\mu) \circ \frac{1}{\vec{\sigma}}\Big)\Bigg\|_2^2\Bigg] + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg]
 $$
 
 We can simiplify this as
 $$
--\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]  + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\mu_l)}{q_l(\mu_l)}\Bigg] = \\
+-\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg]  + \sum_{l=1}^L \mathbb{E}_{q_l} \Bigg[\log \frac{g_l(\beta_l)}{q_l(\beta_l)}\Bigg] = \\
 -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \Bigg[\Big\|Y\Big\|_2^2 - 2Y^T \overline{T(\mu)} + \Big\|\sqrt{\overline{T(\mu)^2}} \Big\|_2^2\Bigg] - \sum_{l=1}^L D_{KL}\Big(Q_l \| G_l\Big)
 $$
 

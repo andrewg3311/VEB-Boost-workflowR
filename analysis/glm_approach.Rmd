@@ -147,7 +147,7 @@ $$
 $$
 
 
-## Poisson Model (with $\log(1 + e^x))$ link)
+## Poisson Model (with $\log(1 + e^x)$ link)
 
 
 ## Multinomial Logistic Model

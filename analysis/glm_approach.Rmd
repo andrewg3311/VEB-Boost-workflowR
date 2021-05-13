@@ -1,0 +1,157 @@
+---
+title: "GLM Approach"
+author: "Andrew Goldstein"
+date: "May 11, 2021"
+output:
+  workflowr::wflow_html:
+    code_folding: show
+---
+
+
+# Introduction
+This page outlines the general method to use the homoskedastic Gaussian error linear model machinery to solve the GLM model for certain distributions.
+
+# Gaussian Error Model
+This section outlines the Gaussian error model. First, we define the homoskedastic case. Then, we define the heteroskedastic case, and show that we can use our homoskedastic "solver" on modified data to solve the heteroskedastic case.
+
+## Homoskedastic Gaussian Errors
+This section defines the basic model we are solving. The "solver" for this model serves as the modular component the sections that follow.
+
+For response $\textbf{y} \in \mathbb{R}^n$ and design matrix $\textbf{X} \in \mathbb{R}^{n \times p}$, the general set-up is:
+$$
+\begin{aligned}
+\textbf{y} = \textbf{X}\boldsymbol\beta + \boldsymbol\epsilon \\
+\boldsymbol\epsilon \sim \mathcal{N}_n(\textbf{0}, \sigma^2\textbf{I}_n) \\
+\boldsymbol\beta \sim g(\cdot) \in \mathcal{G}
+\end{aligned}
+$$
+Our residual variance is $\sigma^2 > 0$ and is the same for all observations. Here, our prior distribution for our effect vector $\boldsymbol\beta$ is $g(\cdot)$ which lives in some class of distributions $\mathcal{G}$.
+
+We can write the ELBO for this model as:
+$$
+\begin{aligned}
+\mathbb{E}_{\boldsymbol\beta \sim q(\cdot)}[l(\textbf{y}; \boldsymbol\beta, \sigma^2)] - D_{KL}(q \| g) = \\
+\mathbb{E}_q[-\frac{n}{2}\log(2\pi) - \frac{n}{2}\log(\sigma^2) - \frac{1}{2\sigma^2} (\textbf{y} - \textbf{X}\boldsymbol\beta)^T (\textbf{y} - \textbf{X}\boldsymbol\beta)] - D_{KL}(q \| g)
+\end{aligned}
+$$
+
+## Arbitrary Gaussian Errors
+Suppose that instead of our errors being iid $\mathcal{N}(0, \sigma^2)$, we have an arbitrary multivariate normal distribution for our errors, i.e.
+$$
+\boldsymbol\epsilon \sim \mathcal{N}_n(\textbf{0}, \boldsymbol\Lambda^{-1})
+$$
+for some precision matrix $\boldsymbol\Lambda \in \mathbb{R}_{++}^{n \times n}$.
+
+We can write the ELBO for this model as:
+$$
+\begin{aligned}
+\mathbb{E}_{\boldsymbol\beta \sim q(\cdot)}[l(\textbf{y}; \boldsymbol\beta, \sigma^2)] - D_{KL}(q \| g) = \\
+\mathbb{E}_q[-\frac{n}{2}\log(2\pi) + \frac{1}{2}\log|\boldsymbol\Lambda| - \frac{1}{2} (\textbf{y} - \textbf{X}\boldsymbol\beta)^T \boldsymbol\Lambda (\textbf{y} - \textbf{X}\boldsymbol\beta)] - D_{KL}(q \| g) = \\
+\mathbb{E}_q[-\frac{n}{2}\log(2\pi) + \frac{1}{2}\log|\boldsymbol\Lambda| - \frac{1}{2} (\textbf{y} - \textbf{X}\boldsymbol\beta)^T \boldsymbol\Lambda^{1/2}\boldsymbol\Lambda^{1/2} (\textbf{y} - \textbf{X}\boldsymbol\beta)] - D_{KL}(q \| g) = \\
+\mathbb{E}_q[-\frac{n}{2}\log(2\pi) + \frac{1}{2}\log|\boldsymbol\Lambda| \pm \frac{1}{2}\log|\textbf{I}_n| - \frac{1}{2} (\boldsymbol\Lambda^{1/2}\textbf{y} - \boldsymbol\Lambda^{1/2}\textbf{X}\boldsymbol\beta)^T (\boldsymbol\Lambda^{1/2}\textbf{y} - \boldsymbol\Lambda^{1/2}\textbf{X}\boldsymbol\beta)] - D_{KL}(q \| g)
+\end{aligned}
+$$
+We can recognize this ELBO (up to a constant of $\frac{1}{2}\log|\boldsymbol\Lambda|$) as the same as in the homoskedastic independent case, but using response $\boldsymbol\Lambda^{1/2}\textbf{y}$, design matrix $\boldsymbol\Lambda^{1/2}\textbf{X}$, and residual variance $\sigma^2 = 1$. Thus, if we have a solver for the homoskedastic case, we can use it to solve the case for and arbitrary covariance among the errors simple by transforming our response and design matrix.
+
+In particular, if $\boldsymbol\Lambda = diag(\frac{1}{\sigma_1^2}, \dots, \frac{1}{\sigma_n^2})$, this corresponds to using the new responses $y_i / \sigma_i$ and the new design matrix with scaled rows $\textbf{x}_i^T / \sigma_i$.
+
+N.B. Naively, a general solver seems like it should take as inputs $\textbf{y}, \textbf{X}, \text{ and } \boldsymbol\Lambda (\text{or } \boldsymbol\Sigma = \boldsymbol\Lambda^{-1})$. However, for computation reasons, VEB-Boost is set up for the solver to take as input $\boldsymbol\Lambda\textbf{y}, \textbf{X}. \text{ and } \boldsymbol\Lambda$. Given the form of updates in the single-effect regression case, this is a feasible modification to make.
+
+# Approach to GLM Models
+This section outlines the general approach I have been taking when trying to apply the above machinery to cases with non-Gaussian data. In short, it relies on being able to obtain a global quadratic lower bound on the log-likelihood:
+$$
+l(\boldsymbol\mu ; \textbf{y}) \ge -\frac{1}{2}\boldsymbol\mu^T\textbf{A}(\textbf{y}, \boldsymbol\xi)\boldsymbol\mu + \textbf{b}(\textbf{y}, \boldsymbol\xi)^T\boldsymbol\mu + c(\textbf{y}, \boldsymbol\xi)
+$$
+In the above inequality, as well as the rest of this page, I will use $\boldsymbol\mu$ to denote the "linear predictor" from our glm, e.g., $\boldsymbol\mu = \textbf{X}\boldsymbol\beta$ in the linear case. Or in the VEB-Boost case, $\boldsymbol\mu = T(\boldsymbol\mu_1, \dots, \boldsymbol\mu_L)$ for VEB-Boost tree structure $T(\cdot)$ and base learners $\boldsymbol\mu_l$. And $\boldsymbol\xi$ represents our variational parameters, with our $\textbf{A}(\textbf{y}, \boldsymbol\xi)$, $\textbf{b}(\textbf{y}, \boldsymbol\xi)$, and $c(\textbf{y}, \boldsymbol\xi)$ designed such that they yield a lower bound for all values of $\boldsymbol\xi$.
+
+With a fixed $\boldsymbol\xi$, we note that the RHS of this inequality is the same as the log-likelihood of the Gaussian model, with precision matrix $\textbf{A}(\textbf{y}, \boldsymbol\xi)$ and response $\textbf{A}^{-1}\textbf{b}$, up to a constant in $\boldsymbol\mu$. Thus, we use our Gaussian machinery with the modified precision matrix and response vector to perform an update on $q(\boldsymbol\mu)$. Then, we fix $q(\boldsymbol\mu)$ and maximize over $\boldsymbol\xi$. We iterate this process until convergence.
+
+# GLM Examples
+This section outlines the bounds used in some specific cases.
+
+## Logistic Model
+In the logistic model, we have a binary response $\textbf{y}$, and our model is:
+$$
+\begin{aligned}
+\textbf{y} \stackrel{\perp}{\sim} Bern(\textbf{p}) \\
+p_i = \sigma(\textbf{x}_i^T \boldsymbol\beta) \\
+\boldsymbol\beta \sim g(\cdot) \in \mathcal{G}
+\end{aligned}
+$$
+where $\sigma(x) = \frac{1}{1 + e^{-x}} = \frac{e^x}{1 + e^x}$ is the logistic sigmoid function.
+
+The log-likelihood for this model is:
+$$
+l(\boldsymbol\beta ; \textbf{y}, \textbf{X}) = \sum_{i=1}^n y_i\log\sigma(\textbf{x}_i^T \boldsymbol\beta) + (1 - y_i)\log\sigma(-\textbf{x}_i^T \boldsymbol\beta) = \sum_{i=1}^n \log\sigma((2y_i - 1)\textbf{x}_i^T \boldsymbol\beta)
+$$
+Jaakkola and Jordan ([1996](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.29.210)) provide a quadratic lower bound to the log of the logistic function:
+$$
+\log\sigma(x) = \frac{x}{2} - \log(e^{x/2} + e^{-x/2}) \ge - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})x^2 + \frac{x}{2}  - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})\xi^2 - \log(e^{\xi/2} + e^{-\xi/2})
+$$
+
+This bound is derived using the bound:
+$$
+-\log(e^{x/2} + e^{-x/2}) \ge \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})x^2 - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})\xi^2 - \log(e^{\xi/2} + e^{-\xi/2})
+$$
+
+Thus, we can lower bound the likelihood of our model with:
+$$
+l(\boldsymbol\beta ; \textbf{y}, \textbf{X}) \ge -\frac{1}{2}\boldsymbol\mu^T \textbf{A}(\textbf{y}, \boldsymbol\xi) \boldsymbol\mu + \textbf{b}(\textbf{y}, \boldsymbol\xi)^T \boldsymbol\mu + c(\textbf{y}, \boldsymbol\xi)
+$$
+where
+$$
+\begin{aligned}
+\boldsymbol\mu = \textbf{X}\boldsymbol\beta \\
+\textbf{A}(\textbf{y}, \boldsymbol\xi) = diag(d_i), \quad d_i = \frac{1}{\xi_i}(\sigma(\xi_i) - 1/2) \\
+\textbf{b}(\textbf{y}, \boldsymbol\xi) = y_i - \frac{1}{2} \\
+\end{aligned}
+$$
+
+## Negative Binomial Model
+In the negative binomial (NB) model, we have a count response $\textbf{y}$, and for a fixed $r > 0$ our model is:
+$$
+\begin{aligned}
+\textbf{y} \stackrel{\perp}{\sim} NB(r, \textbf{p}) \\
+p_i = \sigma(\textbf{x}_i^T \boldsymbol\beta) \\
+\boldsymbol\beta \sim g(\cdot) \in \mathcal{G}
+\end{aligned}
+$$
+
+The log-likelihood for this model is:
+$$
+\begin{aligned}
+l(\boldsymbol\beta ; \textbf{y}, \textbf{X}) = \sum_{i=1}^n \log{{y_i} \choose {y_i + r - 1}} + y_i\log\sigma(\textbf{x}_i^T \boldsymbol\beta) + r_i\log\sigma(-\textbf{x}_i^T \boldsymbol\beta) = \sum_{i=1}^n y_i\textbf{x}_i^T \boldsymbol\beta - (y_i + r)\log(1 + e^{\textbf{x}_i^T \boldsymbol\beta}) + const = \\
+\sum_{i=1}^n y_i \textbf{x}_i \boldsymbol\beta + (y_i + r)\Big(\frac{-\textbf{x}_i \boldsymbol\beta}{2} - \log(e^{-\textbf{x}_i \boldsymbol\beta / 2} + e^{\textbf{x}_i \boldsymbol\beta / 2})\Big) + const = \sum_{i=1}^n \frac{y_i - r}{2} \textbf{x}_i \boldsymbol\beta - (y_i + r)\log(e^{-\textbf{x}_i \boldsymbol\beta / 2} + e^{\textbf{x}_i \boldsymbol\beta / 2})
+\end{aligned}
+$$
+
+This string of equalities is a bit easier to see if you use the below equality, which is mentioned in Polsen, Scott, and Windle [(2012)](https://www.tandfonline.com/doi/abs/10.1080/01621459.2013.829001):
+$$
+\frac{(e^x)^a}{(1 + e^x)^b} = 2^{-b} e^{x(a - b/2)} \Bigg(\frac{2}{e^{x/2} + e^{-x/2}}\Bigg)^b
+$$
+In order to bound our log-likelihood, we can then use the inequality used in deriving the Jaakkola-Jordan bound:
+$$
+\begin{aligned}
+\log\sigma(x) = \frac{x}{2} - \log(e^{x/2} + e^{-x/2}) \ge - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})x^2 + \frac{x}{2}  - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})\xi^2 - \log(e^{\xi/2} + e^{-\xi/2}) \Rightarrow \\
+-\log(e^{x/2} + e^{-x/2}) \ge - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})x^2 - \frac{1}{2\xi}(\sigma(\xi) - \frac{1}{2})\xi^2 - \log(e^{\xi/2} + e^{-\xi/2})
+\end{aligned}
+$$
+
+This results in the bound on the log-likelihood using:
+$$
+\begin{aligned}
+\boldsymbol\mu = \textbf{X}\boldsymbol\beta \\
+\textbf{A}(\textbf{y}, \boldsymbol\xi) = diag(d_i(y_i + r)), \quad d_i = \frac{1}{\xi_i}(\sigma(\xi_i) - 1/2) \\
+\textbf{b}(\textbf{y}, \boldsymbol\xi) = \frac{y_i - r}{2} \\
+\end{aligned}
+$$
+
+
+## Poisson Model (with $\log(1 + e^x))$ link)
+
+
+## Multinomial Logistic Model
+
+
+## Pairwise Ranking BTL Model
+

@@ -16,4 +16,5 @@ For a quick note on fitting an intercept, see [here](note_on_the_intercept.html)
 
 For a description of how we grow the VEB-Boost tree, see [here](Growing_VEB_Boost_Tree.html).
 
+For a description of the general GLM approach, see [here](glm_approach.html).
 
